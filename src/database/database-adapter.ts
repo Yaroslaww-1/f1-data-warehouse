@@ -8,10 +8,14 @@ class DatabaseAdapter {
 
   async query<T>(query: string, values?: unknown[]): Promise<T[]> {
     const connection = await this._pool.connect();
-    const result = await connection.query(query, values);
-    console.log(`Query result: ${result}`);
-    connection.release();
-    return result?.rows as T[];
+    try {
+      const result = await connection.query(query, values);
+      console.log(`Query result: ${result}`);
+      connection.release();
+      return result?.rows as T[];
+    } catch (e) {
+      console.error(e);
+    }
   }
 }
 

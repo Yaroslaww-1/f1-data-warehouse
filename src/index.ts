@@ -12,13 +12,15 @@ const processUserCommands = async () => {
   const Option = {
     DROP_MAIN_SCHEMA: '1',
     CREATE_MAIN_SCHEMA: '2',
-    CREATE_WC_STAGING_SCHEMA: '3',
-    LOAD_WC_STAGING: '4',
-    EXIT: '5',
+    DROP_WC_STAGING_SCHEMA: '3',
+    CREATE_WC_STAGING_SCHEMA: '4',
+    LOAD_WC_STAGING: '5',
+    EXIT: '6',
   };
   console.log(`Available options:
   Drop main schema = ${Option.DROP_MAIN_SCHEMA}
   Create main schema = ${Option.CREATE_MAIN_SCHEMA}
+  Drop wc staging schema = ${Option.DROP_WC_STAGING_SCHEMA}
   Create wc staging schema = ${Option.CREATE_WC_STAGING_SCHEMA}
   Load wc staging = ${Option.LOAD_WC_STAGING}
   Exit = ${Option.EXIT}
@@ -32,6 +34,10 @@ const processUserCommands = async () => {
       }
       case Option.CREATE_MAIN_SCHEMA: {
         await MainSchema.create();
+        break;
+      }
+      case Option.DROP_WC_STAGING_SCHEMA: {
+        await WcStaging.drop();
         break;
       }
       case Option.CREATE_WC_STAGING_SCHEMA: {
