@@ -5,7 +5,7 @@ CREATE TABLE stg_wc.team_dim (
 	id SERIAL PRIMARY KEY,
 	ref VARCHAR(25),
 	name VARCHAR(25),
-	source_key VARCHAR(25) UNIQUE
+	source_key VARCHAR(25)
 );
 
 -- dim
@@ -13,14 +13,14 @@ CREATE TABLE stg_wc.driver_dim (
 	id SERIAL PRIMARY KEY,
 	ref VARCHAR(25),
 	code VARCHAR(10),
-	source_key VARCHAR(25) UNIQUE
+	source_key VARCHAR(25)
 );
 
 CREATE TABLE stg_wc.circuit_dim (
 	id SERIAL PRIMARY KEY,
 	ref VARCHAR(25),
 	name VARCHAR(100),
-	source_key VARCHAR(25) UNIQUE
+	source_key VARCHAR(25)
 );
 
 -- dim
@@ -29,7 +29,7 @@ CREATE TABLE stg_wc.race_dim (
 	name VARCHAR(100),
 	date DATE,
 	circuit_id INT,
-	source_key VARCHAR(25) UNIQUE,
+	source_key VARCHAR(25),
 	CONSTRAINT fk_circuit_id
 		FOREIGN KEY (circuit_id)
 			REFERENCES stg_wc.circuit_dim (id) ON DELETE SET NULL
@@ -39,7 +39,7 @@ CREATE TABLE stg_wc.race_dim (
 CREATE TABLE stg_wc.status_dim (
 	id SERIAL PRIMARY KEY,
 	name VARCHAR(25),
-	source_key VARCHAR(25) UNIQUE
+	source_key VARCHAR(25)
 );
 
 -- dim
@@ -49,7 +49,7 @@ CREATE TABLE stg_wc.qualifying_dim (
 	driver_id INT,
 	race_id INT,
 	team_id INT,
-	source_key VARCHAR(25) UNIQUE,
+	source_key VARCHAR(25),
 	CONSTRAINT fk_driver_id
 		FOREIGN KEY (driver_id)
 			REFERENCES stg_wc.driver_dim (id) ON DELETE SET NULL,
@@ -68,7 +68,7 @@ CREATE TABLE stg_wc.laps_stats_dim (
 	race_id INT,
 	lap INT,
 	time_in_milliseconds INT,
-	source_key VARCHAR(25) UNIQUE,
+	source_key VARCHAR(25),
 	CONSTRAINT fk_driver_id
 		FOREIGN KEY (driver_id)
 			REFERENCES stg_wc.driver_dim (id) ON DELETE SET NULL,
@@ -83,7 +83,7 @@ CREATE TABLE stg_wc.pit_stops_stats_dim (
 	duration_in_milliseconds INT,
 	driver_id INT,
 	race_id INT,
-	source_key VARCHAR(25) UNIQUE,
+	source_key VARCHAR(25),
 	CONSTRAINT fk_driver_id
 		FOREIGN KEY (driver_id)
 			REFERENCES stg_wc.driver_dim (id) ON DELETE SET NULL,
@@ -102,7 +102,7 @@ CREATE TABLE stg_wc.driver_race_result (
 	finishing_position INT,
 	points DECIMAL(15, 1),
 	status_id INT,
-	source_key VARCHAR(25) UNIQUE,
+	source_key VARCHAR(25),
 	CONSTRAINT fk_driver_id
 		FOREIGN KEY (driver_id)
 			REFERENCES stg_wc.driver_dim (id) ON DELETE SET NULL,

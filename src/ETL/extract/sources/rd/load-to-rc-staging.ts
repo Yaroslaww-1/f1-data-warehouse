@@ -1,5 +1,6 @@
+import { insertIntoTable } from '@src/database/utils/insert-into-table';
 import { extract } from './extract';
-import { RdStaging } from './staging/staging';
+import { RcStagingTable } from './table-names.enum';
 
 const valueOrDefault = (value, def = null) => {
   if (value === '\\N') {
@@ -25,18 +26,13 @@ const mapRaceToTable = race => ({
 });
 
 export class LoadToRdStaging {
-  static async load() {
-    await this.loadCircuitDimension();
-    await this.loadRaceDimension();
-  }
-
-  private static async loadCircuitDimension() {
+  static async loadCircuitDimension() {
     const circuits = await extract('circuits');
-    await RdStaging.insertInto('stg_rd.circuit_dim', circuits.map(mapCircuitToTable));
+    await insertIntoTable(RcStagingTable.CIRCUIT, circuits.map(mapCircuitToTable));
   }
 
-  private static async loadRaceDimension() {
+  static async loadRaceDimension() {
     const races = await extract('races');
-    await RdStaging.insertInto('stg_rd.race_dim', races.map(mapRaceToTable));
+    await insertIntoTable(RcStagingTable.RACE, races.map(mapRaceToTable));
   }
 }
