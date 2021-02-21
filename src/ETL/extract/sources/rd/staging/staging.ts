@@ -1,7 +1,7 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { databaseAdapter } from '@src/database/database-adapter';
-import { LoadToRdStaging } from '../load-to-rc-staging';
+import { LoadToRdStaging } from '../load-to-rd-staging';
 
 export class RdStaging {
   static async create() {

@@ -14,14 +14,10 @@ CREATE TABLE driver_dim (
 	id SERIAL PRIMARY KEY,
 	ref VARCHAR(25),
 	code VARCHAR(10),
-	team_id INT,
 	valid_from TIMESTAMP,
 	valid_to TIMESTAMP,
 	is_incremental_load BOOLEAN,
-	source_key VARCHAR(25),
-	CONSTRAINT fk_team_id
-		FOREIGN KEY (team_id)
-			REFERENCES team_dim (id) ON DELETE SET NULL
+	source_key VARCHAR(25)
 );
 
 CREATE TYPE month_enum AS ENUM (
@@ -140,6 +136,7 @@ CREATE TABLE pit_stops_stats_dim (
 CREATE TABLE driver_race_result (
 	id SERIAL PRIMARY KEY,
 	driver_id INT,
+	team_id INT,
 	race_id INT,
 	status_id INT,
 	qualifying_id INT,
@@ -150,6 +147,9 @@ CREATE TABLE driver_race_result (
 	CONSTRAINT fk_driver_id
 		FOREIGN KEY (driver_id)
 			REFERENCES driver_dim (id) ON DELETE SET NULL,
+	CONSTRAINT fk_team_id
+		FOREIGN KEY (team_id)
+			REFERENCES team_dim (id) ON DELETE SET NULL,
 	CONSTRAINT fk_race_id
 		FOREIGN KEY (race_id)
 			REFERENCES race_dim (id) ON DELETE SET NULL,

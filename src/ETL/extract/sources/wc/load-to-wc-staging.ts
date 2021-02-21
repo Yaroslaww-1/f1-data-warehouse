@@ -9,29 +9,29 @@ const valueOrDefault = (value, def = null) => {
   }
 };
 
-const getSourceKey = itemId => `WC|${itemId}`;
+export const getWcSourceKey = itemId => `WC|${itemId}`;
 
 const mapTeamToTable = team => ({
   ref: valueOrDefault(team.constructorRef),
   name: team.name,
-  source_key: getSourceKey(team.constructorId),
+  source_key: getWcSourceKey(team.constructorId),
 });
 
 const mapStatusToTable = status => ({
   name: status.status,
-  source_key: getSourceKey(status.statusId),
+  source_key: getWcSourceKey(status.statusId),
 });
 
 const mapCircuitToTable = circuit => ({
   ref: valueOrDefault(circuit.circuitRef),
   name: circuit.name,
-  source_key: getSourceKey(circuit.circuitId),
+  source_key: getWcSourceKey(circuit.circuitId),
 });
 
 const mapDriverToTable = driver => ({
   ref: valueOrDefault(driver.driverRef),
-  code: driver.code,
-  source_key: getSourceKey(driver.driverId),
+  code: valueOrDefault(driver.code),
+  source_key: getWcSourceKey(driver.driverId),
 });
 
 const mapLapsStatsToTable = lapStats => ({
@@ -39,14 +39,14 @@ const mapLapsStatsToTable = lapStats => ({
   race_id: lapStats.raceId,
   lap: lapStats.lap,
   time_in_milliseconds: lapStats.milliseconds,
-  source_key: getSourceKey(`${lapStats.raceId}-${lapStats.driverId}-${lapStats.lap}`),
+  source_key: getWcSourceKey(`${lapStats.raceId}-${lapStats.driverId}-${lapStats.lap}`),
 });
 
 const mapPitStopsStatsToTable = pitStopStats => ({
   driver_id: pitStopStats.driverId,
   race_id: pitStopStats.raceId,
   duration_in_milliseconds: pitStopStats.milliseconds,
-  source_key: getSourceKey(`${pitStopStats.raceId}-${pitStopStats.driverId}-${pitStopStats.stop}`),
+  source_key: getWcSourceKey(`${pitStopStats.raceId}-${pitStopStats.driverId}-${pitStopStats.stop}`),
 });
 
 const mapQualifyingToTable = qualifying => ({
@@ -54,14 +54,14 @@ const mapQualifyingToTable = qualifying => ({
   race_id: qualifying.raceId,
   team_id: qualifying.constructorId,
   position: qualifying.position,
-  source_key: getSourceKey(qualifying.qualifyId),
+  source_key: getWcSourceKey(qualifying.qualifyId),
 });
 
 const mapRaceToTable = race => ({
   name: race.name,
   date: race.date,
   circuit_id: race.circuitId,
-  source_key: getSourceKey(race.raceId),
+  source_key: getWcSourceKey(race.raceId),
 });
 
 const mapDriverRaceResultToTable = result => ({
@@ -72,7 +72,7 @@ const mapDriverRaceResultToTable = result => ({
   finishing_position: valueOrDefault(result.position),
   points: valueOrDefault(result.points),
   status_id: result.statusId,
-  source_key: getSourceKey(result.resultId),
+  source_key: getWcSourceKey(result.resultId),
 });
 
 export class LoadToWcStaging {

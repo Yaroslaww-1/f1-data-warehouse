@@ -1,6 +1,6 @@
 import { databaseAdapter } from '@src/database/database-adapter';
 import { insertIntoTable } from '@src/database/utils/insert-into-table';
-import { RcStagingTable } from '@src/ETL/extract/sources/rd/table-names.enum';
+import { RdStagingTable } from '@src/ETL/extract/sources/rd/table-names.enum';
 import { DEFAULT_VALID_FROM, DEFAULT_VALID_TO } from '../constants';
 import { DimTable } from '../table-names.enum';
 import { isIncrementalLoad } from '../utils/is-incremental-load';
@@ -31,7 +31,7 @@ export class LoadCircuitDim {
   }
 
   private static async getCircuits() {
-    const circuits = await databaseAdapter.query(`SELECT * FROM ${RcStagingTable.CIRCUIT}`);
+    const circuits = await databaseAdapter.query(`SELECT * FROM ${RdStagingTable.CIRCUIT}`);
     return circuits;
   }
 
