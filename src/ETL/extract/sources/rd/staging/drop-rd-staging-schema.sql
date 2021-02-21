@@ -1,0 +1,1 @@
+DROP SCHEMA stg_rd CASCADE;

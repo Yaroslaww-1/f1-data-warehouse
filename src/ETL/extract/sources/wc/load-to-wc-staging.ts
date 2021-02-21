@@ -9,41 +9,44 @@ const valueOrDefault = (value, def = null) => {
   }
 };
 
+const getSourceKey = itemId => `WC|${itemId}`;
+
 const mapTeamToTable = team => ({
-  // id: team.constructorId,
   ref: valueOrDefault(team.constructorRef),
   name: team.name,
+  source_key: getSourceKey(team.constructorId),
 });
 
 const mapStatusToTable = status => ({
-  // id: status.statusId,
   name: status.status,
+  source_key: getSourceKey(status.statusId),
 });
 
 const mapCircuitToTable = circuit => ({
-  // id: circuit.circuitId,
   ref: valueOrDefault(circuit.circuitRef),
   name: circuit.name,
+  source_key: getSourceKey(circuit.circuitId),
 });
 
 const mapDriverToTable = driver => ({
-  // id: driver.driverId,
   ref: valueOrDefault(driver.driverRef),
   code: driver.code,
+  source_key: getSourceKey(driver.driverId),
 });
 
 const mapLapsStatsToTable = lapStats => ({
-  // id: lapStats.driverId,
   driver_id: lapStats.driverId,
   race_id: lapStats.raceId,
   lap: lapStats.lap,
   time_in_milliseconds: lapStats.milliseconds,
+  source_key: getSourceKey(`${lapStats.raceId}-${lapStats.driverId}-${lapStats.lap}`),
 });
 
 const mapPitStopsStatsToTable = pitStopStats => ({
   driver_id: pitStopStats.driverId,
   race_id: pitStopStats.raceId,
   duration_in_milliseconds: pitStopStats.milliseconds,
+  source_key: getSourceKey(`${pitStopStats.raceId}-${pitStopStats.driverId}-${pitStopStats.stop}`),
 });
 
 const mapQualifyingToTable = qualifying => ({
@@ -51,28 +54,26 @@ const mapQualifyingToTable = qualifying => ({
   race_id: qualifying.raceId,
   team_id: qualifying.constructorId,
   position: qualifying.position,
+  source_key: getSourceKey(qualifying.qualifyId),
 });
 
 const mapRaceToTable = race => ({
   name: race.name,
   date: race.date,
   circuit_id: race.circuitId,
+  source_key: getSourceKey(race.raceId),
 });
 
 const mapDriverRaceResultToTable = result => ({
-    driver_id: result.driverId,
-    race_id: result.raceId,
-    team_id: result.constructorId,
-    starting_position: valueOrDefault(result.grid),
-    finishing_position: valueOrDefault(result.position),
-    points: valueOrDefault(result.points),
-    status_id: result.statusId,
+  driver_id: result.driverId,
+  race_id: result.raceId,
+  team_id: result.constructorId,
+  starting_position: valueOrDefault(result.grid),
+  finishing_position: valueOrDefault(result.position),
+  points: valueOrDefault(result.points),
+  status_id: result.statusId,
+  source_key: getSourceKey(result.resultId),
 });
-
-// const isValid = value => {
-//   if (Object.values(value).some(isNotExists)) return false;
-//   else return true;
-// }
 
 export class LoadToWcStaging {
   static async load() {
