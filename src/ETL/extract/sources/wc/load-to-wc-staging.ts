@@ -51,14 +51,6 @@ const mapPitStopsStatsToTable = pitStopStats => ({
   source_key: getWcSourceKey(`${pitStopStats.raceId}-${pitStopStats.driverId}-${pitStopStats.stop}`),
 });
 
-const mapQualifyingToTable = qualifying => ({
-  driver_id: qualifying.driverId,
-  race_id: qualifying.raceId,
-  team_id: qualifying.constructorId,
-  position: qualifying.position,
-  source_key: getWcSourceKey(qualifying.qualifyId),
-});
-
 const mapRaceToTable = race => ({
   name: race.name,
   date: race.date,
@@ -101,11 +93,6 @@ export class LoadToWcStaging {
   static async loadPitStopsStatsDimension() {
     const pitStopsStats = await extract('pit_stops');
     await insertIntoTable('stg_wc.pit_stops_stats_dim', pitStopsStats.map(mapPitStopsStatsToTable).filter(ps => ps.race_id < 1036));
-  }
-
-  static async loadQualifyingDimension() {
-    const qualifying = await extract('qualifying');
-    await insertIntoTable('stg_wc.qualifying_dim', qualifying.map(mapQualifyingToTable).filter(q => q.race_id < 1036));
   }
 
   static async loadRaceDimension() {

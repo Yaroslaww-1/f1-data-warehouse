@@ -22,7 +22,6 @@ export class WcStaging {
     await LoadToWcStaging.loadStatusDimension();
     await LoadToWcStaging.loadLapsStatsDimension();
     await LoadToWcStaging.loadPitStopsStatsDimension();
-    await LoadToWcStaging.loadQualifyingDimension();
     await LoadToWcStaging.loadDriverRaceResultFact();
   }
 }

@@ -1,7 +1,6 @@
 import { databaseAdapter } from '@src/database/database-adapter';
 import { insertIntoTable } from '@src/database/utils/insert-into-table';
 import { RdStagingTable } from '@src/ETL/extract/sources/rd/table-names.enum';
-import { getWcLapStatsSourceKey } from '@src/ETL/extract/sources/wc/load-to-wc-staging';
 import { WcStagingTable } from '@src/ETL/extract/sources/wc/table-names.enum';
 import { getDimLapStatsSourceKey } from '../load-lap-stats-dim/load-lap-stats-dim';
 import { getDimPitStopsStatsSourceKey } from '../load-pit-stops-stats-dim/load-pit-stops-stats-dim';

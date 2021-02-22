@@ -43,25 +43,6 @@ CREATE TABLE stg_wc.status_dim (
 );
 
 -- dim
-CREATE TABLE stg_wc.qualifying_dim (
-	id SERIAL PRIMARY KEY,
-	position INT,
-	driver_id INT,
-	race_id INT,
-	team_id INT,
-	source_key VARCHAR(25),
-	CONSTRAINT fk_driver_id
-		FOREIGN KEY (driver_id)
-			REFERENCES stg_wc.driver_dim (id) ON DELETE SET NULL,
-	CONSTRAINT fk_race_id
-		FOREIGN KEY (race_id)
-			REFERENCES stg_wc.race_dim (id) ON DELETE SET NULL,
-	CONSTRAINT fk_team_id
-		FOREIGN KEY (team_id)
-			REFERENCES stg_wc.team_dim (id) ON DELETE SET NULL
-);
-
--- dim
 CREATE TABLE stg_wc.laps_stats_dim (
 	id SERIAL PRIMARY KEY,
 	driver_id INT,
