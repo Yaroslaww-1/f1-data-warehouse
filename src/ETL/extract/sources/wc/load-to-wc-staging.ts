@@ -1,5 +1,6 @@
 import { insertIntoTable } from '@src/database/utils/insert-into-table';
 import { extract } from './extract';
+import { WcStagingTable } from './table-names.enum';
 
 const valueOrDefault = (value, def = null) => {
   if (value === '\\N') {
@@ -83,12 +84,12 @@ export class LoadToWcStaging {
 
   static async loadDriverDimension() {
     const drivers = await extract('drivers');
-    await insertIntoTable('stg_wc.driver_dim', drivers.map(mapDriverToTable));
+    await insertIntoTable(WcStagingTable.DRIVER, drivers.map(mapDriverToTable));
   }
 
   static async loadLapsStatsDimension() {
     const lapsStats = await extract('lap_times');
-    await insertIntoTable('stg_wc.laps_stats_dim', lapsStats.map(mapLapsStatsToTable).filter(ls => ls.race_id < 1036));
+    await insertIntoTable(WcStagingTable.LAP_STATS, lapsStats.map(mapLapsStatsToTable).filter(ls => ls.race_id < 1036));
   }
 
   static async loadDriverRaceResultFact() {
@@ -113,11 +114,11 @@ export class LoadToWcStaging {
 
   static async loadStatusDimension() {
     const statuses = await extract('status');
-    await insertIntoTable('stg_wc.status_dim', statuses.map(mapStatusToTable));
+    await insertIntoTable(WcStagingTable.STATUS, statuses.map(mapStatusToTable));
   }
 
   static async loadTeamDimension() {
     const teams = await extract('constructors') as any[];
-    await insertIntoTable('stg_wc.team_dim', teams.map(mapTeamToTable));
+    await insertIntoTable(WcStagingTable.TEAM, teams.map(mapTeamToTable));
   }
 }

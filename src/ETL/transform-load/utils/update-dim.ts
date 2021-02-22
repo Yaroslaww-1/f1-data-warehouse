@@ -1,6 +1,6 @@
 import { databaseAdapter } from '@src/database/database-adapter';
 import { insertIntoTable } from '@src/database/utils/insert-into-table';
-import { getCurrentTimestamp, subtractOneSecond } from './date';
+import { getCurrentTimestamp, subtractSeconds } from './date';
 
 type WithSourceKey = {
   source_key: string;
@@ -19,9 +19,9 @@ const updateOldValues = async (
 ) => {
   const inserts = [];
   const updates = [];
+  const currentTimestamp = getCurrentTimestamp();
+  const subtractedTimestamp = subtractSeconds(currentTimestamp, 1);
   for (const duplicateKey of duplicatingKeys) {
-    const currentTimestamp = getCurrentTimestamp();
-    const subtractedTimestamp = subtractOneSecond(currentTimestamp);
     const updateQuery = `
       UPDATE ${tableName}
       SET valid_to = '${subtractedTimestamp}'

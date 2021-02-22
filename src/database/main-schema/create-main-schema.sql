@@ -106,6 +106,8 @@ CREATE TABLE position_stats_dim (
 	id SERIAL PRIMARY KEY,
 	starting_position INT,
 	finishing_position INT,
+	valid_from TIMESTAMP,
+	valid_to TIMESTAMP,
 	is_incremental_load BOOLEAN,
 	source_key VARCHAR(25)
 );

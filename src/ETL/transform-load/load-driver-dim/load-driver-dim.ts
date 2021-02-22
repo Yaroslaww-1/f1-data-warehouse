@@ -5,7 +5,6 @@ import { DimTable } from '../table-names.enum';
 import { addMetaInformation } from '../utils/add-meta-information-to-table';
 import { isIncrementalLoad } from '../utils/is-incremental-load';
 import { updateDim } from '../utils/update-dim';
-import { getWcSourceKey } from '../../extract/sources/wc/load-to-wc-staging';
 
 const mapDriverToTable = (isIncrementalLoad: boolean) => driver => ({
   ref: driver.ref,

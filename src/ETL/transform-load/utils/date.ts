@@ -2,9 +2,9 @@ export const getCurrentTimestamp = () => {
   return new Date().toISOString();
 };
 
-export const subtractOneSecond = (dateStr: string) => {
+export const subtractSeconds = (dateStr: string, secondsCount = 1) => {
   const date = new Date(dateStr);
-  return new Date(date.getTime() - 1000).toISOString();
+  return new Date(date.getTime() - secondsCount * 1000).toISOString();
 };
 
 export const addDays = (date: Date, days: number) => {
