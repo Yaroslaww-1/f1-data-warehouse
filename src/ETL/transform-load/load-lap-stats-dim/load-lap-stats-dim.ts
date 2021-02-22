@@ -7,11 +7,12 @@ import { addMetaInformation } from '../utils/add-meta-information-to-table';
 import { isIncrementalLoad } from '../utils/is-incremental-load';
 import { updateDim } from '../utils/update-dim';
 
+export const getDimLapStatsSourceKey = lapStats => getWcSourceKey(`${lapStats.race_id}-${lapStats.driver_id}`);
+
 const mapLapStatsToTable = (isIncrementalLoad: boolean) => lapStats => ({
   laps_count: lapStats.laps_count,
   fastest_lap_time_in_milliseconds: lapStats.fastest_lap_time_in_milliseconds,
   ...addMetaInformation(lapStats, isIncrementalLoad),
-  source_key: getWcSourceKey(`${lapStats.race_id}-${lapStats.driver_id}`),
 });
 
 export class LoadLapsStatsDim {
@@ -36,7 +37,10 @@ export class LoadLapsStatsDim {
       GROUP BY lsd.driver_id, lsd.race_id;
     `;
     const lapsStats = await databaseAdapter.query<any>(query);
-    return lapsStats;
+    return lapsStats.map(lapStats => ({
+      ...lapStats,
+      source_key: getDimLapStatsSourceKey(lapStats),
+    }));
   }
 
   private static async insertNewLapsStats(lapsStats) {

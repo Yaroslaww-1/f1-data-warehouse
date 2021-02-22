@@ -4,7 +4,7 @@ export const insertIntoTable = async (tableName: string, data: unknown[]) => {
   const columnNames = Object.keys(data[0]).filter(name => name !== 'id');
   const values = data.map(value => {
     const valueProperties = columnNames.map(c => {
-      if (value[c] === null) return 'NULL';
+      if (value[c] === null || value[c] === undefined) return 'NULL';
       if (typeof value[c] === 'string') return `'${value[c]}'`;
       else return value[c];
     });

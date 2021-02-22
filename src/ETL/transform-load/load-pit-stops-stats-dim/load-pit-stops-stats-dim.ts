@@ -1,10 +1,13 @@
 import { databaseAdapter } from '@src/database/database-adapter';
 import { insertIntoTable } from '@src/database/utils/insert-into-table';
+import { getWcSourceKey } from '@src/ETL/extract/sources/wc/load-to-wc-staging';
 import { WcStagingTable } from '@src/ETL/extract/sources/wc/table-names.enum';
 import { DimTable } from '../table-names.enum';
 import { addMetaInformation } from '../utils/add-meta-information-to-table';
 import { isIncrementalLoad } from '../utils/is-incremental-load';
 import { updateDim } from '../utils/update-dim';
+
+export const getDimPitStopsStatsSourceKey = pitStopsStats => getWcSourceKey(`${pitStopsStats.race_id}-${pitStopsStats.driver_id}`);
 
 const mapPitStopsStatsToTable = (isIncrementalLoad: boolean) => pitStopsStats => ({
   pit_stops_count: pitStopsStats.pit_stops_count,
@@ -28,14 +31,16 @@ export class LoadPitStopsStatsDim {
       SELECT
         race_id,
         driver_id,
-        source_key,
         COUNT(id) AS "pit_stops_count",
         MIN(duration_in_milliseconds) AS "summary_pit_stops_time_in_milliseconds"
       FROM ${WcStagingTable.PIT_STOPS_STATS} psd
-      GROUP BY psd.driver_id, psd.race_id, psd.source_key;
+      GROUP BY psd.driver_id, psd.race_id;
     `;
     const pitStopsStats = await databaseAdapter.query<any>(query);
-    return pitStopsStats;
+    return pitStopsStats.map(pitStopStats => ({
+      ...pitStopStats,
+      source_key: getDimPitStopsStatsSourceKey(pitStopStats),
+    }));
   }
 
   private static async insertNewPitStopsStats(pitStopsStats) {

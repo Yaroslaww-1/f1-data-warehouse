@@ -10,3 +10,7 @@ export enum DimTable {
   POINTS_STATS = 'points_stats_dim',
   POSITIONS_STATS = 'position_stats_dim',
 }
+
+export enum FaceTable {
+  DRIVER_RACE_RESULT = 'driver_race_result',
+}

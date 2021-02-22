@@ -11,6 +11,7 @@ const valueOrDefault = (value, def = null) => {
 };
 
 export const getWcSourceKey = itemId => `WC|${itemId}`;
+export const getWcLapStatsSourceKey = lapStats => getWcSourceKey(`${lapStats.raceId}-${lapStats.driverId}-${lapStats.lap}`);
 
 const mapTeamToTable = team => ({
   ref: valueOrDefault(team.constructorRef),
@@ -40,7 +41,7 @@ const mapLapsStatsToTable = lapStats => ({
   race_id: lapStats.raceId,
   lap: lapStats.lap,
   time_in_milliseconds: lapStats.milliseconds,
-  source_key: getWcSourceKey(`${lapStats.raceId}-${lapStats.driverId}-${lapStats.lap}`),
+  source_key: getWcLapStatsSourceKey(lapStats),
 });
 
 const mapPitStopsStatsToTable = pitStopStats => ({

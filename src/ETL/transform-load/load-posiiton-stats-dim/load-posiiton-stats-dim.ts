@@ -7,6 +7,8 @@ import { addMetaInformation } from '../utils/add-meta-information-to-table';
 import { isIncrementalLoad } from '../utils/is-incremental-load';
 import { updateDim } from '../utils/update-dim';
 
+export const getDimPositionsStatsSourceKey = positionsStats => getWcSourceKey(`${positionsStats.race_id}-${positionsStats.driver_id}`);
+
 const mapPositionsStatsToTable = (isIncrementalLoad: boolean) => positionsStats => ({
   starting_position: positionsStats.starting_position,
   finishing_position: positionsStats.finishing_position,
@@ -36,7 +38,7 @@ export class LoadPositionStatsDim {
     const positionsStats = await databaseAdapter.query<any>(query);
     return positionsStats.map(stats => ({
       ...stats,
-      source_key: getWcSourceKey(`${stats.race_id}-${stats.driver_id}`),
+      source_key: getDimPositionsStatsSourceKey(stats),
     }));
   }
 

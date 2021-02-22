@@ -8,6 +8,8 @@ import { addMetaInformation } from '../utils/add-meta-information-to-table';
 import { isIncrementalLoad } from '../utils/is-incremental-load';
 import { updateDim } from '../utils/update-dim';
 
+export const getDimPointsStatsSourceKey = pointsStats => getWcSourceKey(`${pointsStats.race_id}-${pointsStats.driver_id}`);
+
 const mapPointsStatsToTable = (isIncrementalLoad: boolean) => pointsStats => ({
   points: pointsStats.points,
   is_fastest_lap: pointsStats.is_fastest_lap,
@@ -63,7 +65,7 @@ export class LoadPointsStatsDim {
       return {
         points: Math.round(result.points),
         is_fastest_lap: isFastestLap,
-        source_key: getWcSourceKey(`${result.race_id}-${result.driver_id}`),
+        source_key: getDimPointsStatsSourceKey(result),
       };
     });
   }
