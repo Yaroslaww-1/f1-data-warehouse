@@ -8,11 +8,11 @@ import { getDateId } from '../utils/get-date-id';
 import { isIncrementalLoad } from '../utils/is-incremental-load';
 import { updateDim } from '../utils/update-dim';
 
-const mapRaceToTable = (isIncrementalLoad: boolean) => race => ({
+const mapRaceToTable = race => ({
   name: race.name,
   date_id: race.date_id,
   circuit_id: race.circuit_id,
-  ...addMetaInformation(race, isIncrementalLoad),
+  ...addMetaInformation(race),
 });
 
 export class LoadRaceDim {
@@ -44,14 +44,14 @@ export class LoadRaceDim {
   }
 
   private static async insertNewRaces(races) {
-    await insertIntoTable(DimTable.RACE, races.map(mapRaceToTable(false)));
+    await insertIntoTable(DimTable.RACE, races.map(mapRaceToTable));
   }
 
   private static async updateRaces(races: any[]) {
     await updateDim({
       dataFromStaging: races,
       dimTableName: DimTable.RACE,
-      mapDataItemToTableItemIncremental: mapRaceToTable(true),
+      mapDataItemToTableItemIncremental: mapRaceToTable,
     });
   }
 }

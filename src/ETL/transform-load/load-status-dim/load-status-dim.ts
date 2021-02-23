@@ -6,9 +6,9 @@ import { addMetaInformation } from '../utils/add-meta-information-to-table';
 import { isIncrementalLoad } from '../utils/is-incremental-load';
 import { updateDim } from '../utils/update-dim';
 
-const mapStatusToTable = (isIncrementalLoad: boolean) => status => ({
+const mapStatusToTable = status => ({
   name: status.name,
-  ...addMetaInformation(status, isIncrementalLoad),
+  ...addMetaInformation(status),
 });
 
 export class LoadStatusDim {
@@ -28,14 +28,14 @@ export class LoadStatusDim {
   }
 
   private static async insertNewStatuses(statuses) {
-    await insertIntoTable(DimTable.STATUS, statuses.map(mapStatusToTable(false)));
+    await insertIntoTable(DimTable.STATUS, statuses.map(mapStatusToTable));
   }
 
   private static async updateStatuses(statuses: any[]) {
     await updateDim({
       dataFromStaging: statuses,
       dimTableName: DimTable.STATUS,
-      mapDataItemToTableItemIncremental: mapStatusToTable(true),
+      mapDataItemToTableItemIncremental: mapStatusToTable,
     });
   }
 }

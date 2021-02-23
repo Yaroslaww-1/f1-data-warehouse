@@ -3,9 +3,8 @@ CREATE TABLE team_dim (
 	id SERIAL PRIMARY KEY,
 	ref VARCHAR(25),
 	name VARCHAR(25),
-	valid_from TIMESTAMP,
-	valid_to TIMESTAMP,
-	is_incremental_load BOOLEAN,
+	valid_from TIMESTAMPTZ,
+	valid_to TIMESTAMPTZ,
 	source_key VARCHAR(25)
 );
 
@@ -14,9 +13,8 @@ CREATE TABLE driver_dim (
 	id SERIAL PRIMARY KEY,
 	ref VARCHAR(25),
 	code VARCHAR(10),
-	valid_from TIMESTAMP,
-	valid_to TIMESTAMP,
-	is_incremental_load BOOLEAN,
+	valid_from TIMESTAMPTZ,
+	valid_to TIMESTAMPTZ,
 	source_key VARCHAR(25)
 );
 
@@ -46,9 +44,8 @@ CREATE TABLE circuit_dim (
 	id SERIAL PRIMARY KEY,
 	ref VARCHAR(25),
 	name VARCHAR(100),
-	valid_from TIMESTAMP,
-	valid_to TIMESTAMP,
-	is_incremental_load BOOLEAN,
+	valid_from TIMESTAMPTZ,
+	valid_to TIMESTAMPTZ,
 	source_key VARCHAR(25)
 );
 
@@ -58,9 +55,8 @@ CREATE TABLE race_dim (
 	name VARCHAR(100),
 	date_id INT,
 	circuit_id INT,
-	valid_from TIMESTAMP,
-	valid_to TIMESTAMP,
-	is_incremental_load BOOLEAN,
+	valid_from TIMESTAMPTZ,
+	valid_to TIMESTAMPTZ,
 	source_key VARCHAR(25),
 	CONSTRAINT fk_date_id
 		FOREIGN KEY (date_id)
@@ -74,9 +70,8 @@ CREATE TABLE race_dim (
 CREATE TABLE status_dim (
 	id SERIAL PRIMARY KEY,
 	name VARCHAR(25),
-	valid_from TIMESTAMP,
-	valid_to TIMESTAMP,
-	is_incremental_load BOOLEAN,
+	valid_from TIMESTAMPTZ,
+	valid_to TIMESTAMPTZ,
 	source_key VARCHAR(25)
 );
 
@@ -84,9 +79,8 @@ CREATE TABLE status_dim (
 CREATE TABLE qualifying_dim (
 	id SERIAL PRIMARY KEY,
 	position INT,
-	valid_from TIMESTAMP,
-	valid_to TIMESTAMP,
-	is_incremental_load BOOLEAN,
+	valid_from TIMESTAMPTZ,
+	valid_to TIMESTAMPTZ,
 	source_key VARCHAR(25)
 );
 
@@ -95,9 +89,8 @@ CREATE TABLE laps_stats_dim (
 	id SERIAL PRIMARY KEY,
 	laps_count INT,
 	fastest_lap_time_in_milliseconds INT,
-	valid_from TIMESTAMP,
-	valid_to TIMESTAMP,
-	is_incremental_load BOOLEAN,
+	valid_from TIMESTAMPTZ,
+	valid_to TIMESTAMPTZ,
 	source_key VARCHAR(25)
 );
 
@@ -106,9 +99,8 @@ CREATE TABLE position_stats_dim (
 	id SERIAL PRIMARY KEY,
 	starting_position INT,
 	finishing_position INT,
-	valid_from TIMESTAMP,
-	valid_to TIMESTAMP,
-	is_incremental_load BOOLEAN,
+	valid_from TIMESTAMPTZ,
+	valid_to TIMESTAMPTZ,
 	source_key VARCHAR(25)
 );
 
@@ -117,9 +109,8 @@ CREATE TABLE points_stats_dim (
 	id SERIAL PRIMARY KEY,
 	points INT,
 	is_fastest_lap BOOLEAN,
-	valid_from TIMESTAMP,
-	valid_to TIMESTAMP,
-	is_incremental_load BOOLEAN,
+	valid_from TIMESTAMPTZ,
+	valid_to TIMESTAMPTZ,
 	source_key VARCHAR(25)
 );
 
@@ -128,9 +119,8 @@ CREATE TABLE pit_stops_stats_dim (
 	id SERIAL PRIMARY KEY,
 	pit_stops_count INT,
 	summary_pit_stops_time_in_milliseconds INT,
-	valid_from TIMESTAMP,
-	valid_to TIMESTAMP,
-	is_incremental_load BOOLEAN,
+	valid_from TIMESTAMPTZ,
+	valid_to TIMESTAMPTZ,
 	source_key VARCHAR(25)
 );
 

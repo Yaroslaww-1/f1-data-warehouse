@@ -10,7 +10,6 @@ class DatabaseAdapter {
     const connection = await this._pool.connect();
     try {
       const result = await connection.query(query, values);
-      console.log(`Query result: ${result}`);
       connection.release();
       return result?.rows as T[];
     } catch (e) {

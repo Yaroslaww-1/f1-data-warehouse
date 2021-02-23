@@ -5,7 +5,7 @@ export const insertIntoTable = async (tableName: string, data: unknown[]) => {
   const values = data.map(value => {
     const valueProperties = columnNames.map(c => {
       if (value[c] === null || value[c] === undefined) return 'NULL';
-      if (typeof value[c] === 'string') return `'${value[c]}'`;
+      if (typeof value[c] === 'string' || value[c] instanceof Date) return `'${value[c]}'`;
       else return value[c];
     });
     return `(${valueProperties.join(',')})`;
@@ -15,5 +15,7 @@ export const insertIntoTable = async (tableName: string, data: unknown[]) => {
     VALUES ${values.join(',')}
     RETURNING *
   `;
-  await databaseAdapter.query<void>(query);
+  // console.log(query);
+  const result = await databaseAdapter.query<void>(query);
+  return result;
 };

@@ -15,6 +15,7 @@ export const getRdSourceKey = itemId => `RD|${itemId}`;
 const mapCircuitToTable = circuit => ({
   ref: valueOrDefault(circuit.circuitRef),
   name: circuit.name,
+  country: circuit.country,
   source_key: getRdSourceKey(circuit.circuitId),
 });
 

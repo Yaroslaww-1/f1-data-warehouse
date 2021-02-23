@@ -5,8 +5,9 @@ import { WcStagingTable } from '@src/ETL/extract/sources/wc/table-names.enum';
 import { getDimLapStatsSourceKey } from '../load-lap-stats-dim/load-lap-stats-dim';
 import { getDimPitStopsStatsSourceKey } from '../load-pit-stops-stats-dim/load-pit-stops-stats-dim';
 import { getDimPointsStatsSourceKey } from '../load-points-stats-dim/load-points-stats-dim';
-import { getDimPositionsStatsSourceKey } from '../load-posiiton-stats-dim/load-posiiton-stats-dim';
+import { getDimPositionsStatsSourceKey } from '../load-position-stats-dim/load-position-stats-dim';
 import { DimTable, FaceTable } from '../table-names.enum';
+import { getCurrentTimestamp } from '../utils/date';
 
 const mapDriverRaceResultToTable = driverRaceResults => ({
   driver_id: driverRaceResults.driver_id,
@@ -57,29 +58,39 @@ export class LoadDriverRaceResult {
       mapPositionsSourceKeyToId.set(positionStats.source_key, positionStats.id);
     }
 
+    const currentTimestamp = getCurrentTimestamp();
+
     const query = `
       SELECT 
         wc_stg_drr.*,
         driver.id AS driver_id,
         team.id AS team_id,
         status.id AS status_id,
-        race.id AS race_id
+        race.id AS race_id,
+        wc_stg_driver.id AS wc_stg_driver_id,
+        wc_stg_race.id AS wc_stg_race_id
       FROM ${WcStagingTable.DRIVER_RACE_RESULT} wc_stg_drr
 
       LEFT JOIN ${WcStagingTable.DRIVER} wc_stg_driver
       ON wc_stg_driver.id = wc_stg_drr.driver_id
       LEFT JOIN ${DimTable.DRIVER} driver
-      ON driver.source_key = wc_stg_driver.source_key
+      ON
+        driver.source_key = wc_stg_driver.source_key AND
+        driver.valid_to > '${currentTimestamp}'
 
       LEFT JOIN ${WcStagingTable.TEAM} wc_stg_team
       ON wc_stg_team.id = wc_stg_drr.team_id
       LEFT JOIN ${DimTable.TEAM} team
-      ON team.source_key = wc_stg_team.source_key
+      ON
+        team.source_key = wc_stg_team.source_key AND
+        team.valid_to > '${currentTimestamp}'
 
       LEFT JOIN ${WcStagingTable.STATUS} wc_stg_status
       ON wc_stg_status.id = wc_stg_drr.status_id
       LEFT JOIN ${DimTable.STATUS} status
-      ON status.source_key = wc_stg_status.source_key
+      ON
+        status.source_key = wc_stg_status.source_key AND
+        status.valid_to > '${currentTimestamp}'
 
       LEFT JOIN ${WcStagingTable.RACE} wc_stg_race
       ON wc_stg_race.id = wc_stg_drr.race_id
@@ -88,32 +99,43 @@ export class LoadDriverRaceResult {
         rd_stg_race.name = wc_stg_race.name AND
         rd_stg_race.date = wc_stg_race.date
       LEFT JOIN ${DimTable.RACE} race
-      ON race.source_key = rd_stg_race.source_key
+      ON
+        race.source_key = rd_stg_race.source_key AND
+        race.valid_to > '${currentTimestamp}'
+
+      WHERE race.id IS NOT NULL
     `;
     
     const driverRaceResults = await databaseAdapter.query<any>(query);
 
-    console.log(mapPitStopsSourceKeyToId.size);
-
-    return driverRaceResults.map(({ driver_id, team_id, race_id, status_id }) => ({
+    const a = driverRaceResults.map(({
+      driver_id,
+      team_id,
+      race_id,
+      status_id,
+      wc_stg_driver_id,
+      wc_stg_race_id,
+    }) => ({
       driver_id,
       team_id,
       race_id,
       status_id,
       //qualifying
       laps_stats_id: mapLapsStatsSourceKeyToId.get(
-        getDimLapStatsSourceKey({ race_id, driver_id })
+        getDimLapStatsSourceKey({ race_id: wc_stg_race_id, driver_id: wc_stg_driver_id })
       ),
       pit_stops_stats_id: mapPitStopsSourceKeyToId.get(
-        getDimPitStopsStatsSourceKey({ race_id, driver_id })
+        getDimPitStopsStatsSourceKey({ race_id: wc_stg_race_id, driver_id: wc_stg_driver_id })
       ),
       points_stats_id: mapPointsStatsSourceKeyToId.get(
-        getDimPointsStatsSourceKey({ race_id, driver_id })
+        getDimPointsStatsSourceKey({ race_id: wc_stg_race_id, driver_id: wc_stg_driver_id })
       ),
       position_stats_id: mapPositionsSourceKeyToId.get(
-        getDimPositionsStatsSourceKey({ race_id, driver_id })
+        getDimPositionsStatsSourceKey({ race_id: wc_stg_race_id, driver_id: wc_stg_driver_id })
       ),
     }));
+
+    return a;
   }
 
   private static async insertNewDriverRaceResults(driverRaceResults) {

@@ -22,7 +22,7 @@ const mapQualifyingToTable = qualifying => ({
   venue: qualifying.Venue,
   driver_name: escapeSymbols(qualifying.Name),
   driver_code: escapeSymbols(qualifying.NameTag),
-  source_key: getFiaSourceKey(`${qualifying.Id}-${qualifying.Year}`),
+  source_key: getFiaSourceKey(qualifying.Id),
 });
 
 export class LoadFiaRdStaging {

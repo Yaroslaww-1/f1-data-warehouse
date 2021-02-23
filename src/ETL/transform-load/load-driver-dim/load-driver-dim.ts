@@ -6,10 +6,10 @@ import { addMetaInformation } from '../utils/add-meta-information-to-table';
 import { isIncrementalLoad } from '../utils/is-incremental-load';
 import { updateDim } from '../utils/update-dim';
 
-const mapDriverToTable = (isIncrementalLoad: boolean) => driver => ({
+const mapDriverToTable = driver => ({
   ref: driver.ref,
   code: driver.code,
-  ...addMetaInformation(driver, isIncrementalLoad),
+  ...addMetaInformation(driver),
 });
 
 export class LoadDriverDim {
@@ -29,14 +29,14 @@ export class LoadDriverDim {
   }
 
   private static async insertNewDrivers(drivers) {
-    await insertIntoTable(DimTable.DRIVER, drivers.map(mapDriverToTable(false)));
+    await insertIntoTable(DimTable.DRIVER, drivers.map(mapDriverToTable));
   }
 
   private static async updateDrivers(drivers: any[]) {
     await updateDim({
       dataFromStaging: drivers,
       dimTableName: DimTable.DRIVER,
-      mapDataItemToTableItemIncremental: mapDriverToTable(true),
+      mapDataItemToTableItemIncremental: mapDriverToTable,
     });
   }
 }

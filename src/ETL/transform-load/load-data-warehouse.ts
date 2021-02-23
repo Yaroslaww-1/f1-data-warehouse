@@ -7,7 +7,7 @@ import { LoadDriverRaceResult } from './load-driver-race-result-fact/load-driver
 import { LoadLapsStatsDim } from './load-lap-stats-dim/load-lap-stats-dim';
 import { LoadPitStopsStatsDim } from './load-pit-stops-stats-dim/load-pit-stops-stats-dim';
 import { LoadPointsStatsDim } from './load-points-stats-dim/load-points-stats-dim';
-import { LoadPositionStatsDim } from './load-posiiton-stats-dim/load-posiiton-stats-dim';
+import { LoadPositionStatsDim } from './load-position-stats-dim/load-position-stats-dim';
 import { LoadRaceDim } from './load-race-dim/load-race-dim';
 import { LoadStatusDim } from './load-status-dim/load-status-dim';
 import { LoadTeamDim } from './load-team-dim/load-team-dim';
@@ -22,8 +22,8 @@ export class LoadDataWarehouse {
     // console.log('Race dim loaded');
     // await LoadTeamDim.load();
     // console.log('Team dim loaded');
-    // await LoadStatusDim.load();
-    // console.log('Status dim loaded');
+    await LoadStatusDim.load();
+    console.log('Status dim loaded');
     // await LoadDriverDim.load();
     // console.log('Driver dim loaded');
     // await LoadLapsStatsDim.load();
@@ -35,8 +35,8 @@ export class LoadDataWarehouse {
     // await LoadPositionStatsDim.load();
     // console.log('Positions Stats dim loaded');
 
-    await LoadDriverRaceResult.load();
-    console.log('Driver Race Results fact loaded');
+    // await LoadDriverRaceResult.load();
+    // console.log('Driver Race Results fact loaded');
 
     // await truncateTable(RcStagingTable.CIRCUIT);
   }

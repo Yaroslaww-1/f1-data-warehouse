@@ -10,10 +10,10 @@ import { updateDim } from '../utils/update-dim';
 
 export const getDimPointsStatsSourceKey = pointsStats => getWcSourceKey(`${pointsStats.race_id}-${pointsStats.driver_id}`);
 
-const mapPointsStatsToTable = (isIncrementalLoad: boolean) => pointsStats => ({
+const mapPointsStatsToTable = pointsStats => ({
   points: pointsStats.points,
   is_fastest_lap: pointsStats.is_fastest_lap,
-  ...addMetaInformation(pointsStats, isIncrementalLoad),
+  ...addMetaInformation(pointsStats),
 });
 
 export class LoadPointsStatsDim {
@@ -71,14 +71,14 @@ export class LoadPointsStatsDim {
   }
 
   private static async insertNewPointsStats(pointsStats) {
-    await insertIntoTable(DimTable.POINTS_STATS, pointsStats.map(mapPointsStatsToTable(false)));
+    await insertIntoTable(DimTable.POINTS_STATS, pointsStats.map(mapPointsStatsToTable));
   }
 
   private static async updatePointsStats(pointsStats: any[]) {
     await updateDim({
       dataFromStaging: pointsStats,
       dimTableName: DimTable.POINTS_STATS,
-      mapDataItemToTableItemIncremental: mapPointsStatsToTable(true),
+      mapDataItemToTableItemIncremental: mapPointsStatsToTable,
     });
   }
 }

@@ -6,10 +6,10 @@ import { addMetaInformation } from '../utils/add-meta-information-to-table';
 import { isIncrementalLoad } from '../utils/is-incremental-load';
 import { updateDim } from '../utils/update-dim';
 
-const mapTeamToTable = (isIncrementalLoad: boolean) => team => ({
+const mapTeamToTable = team => ({
   ref: team.ref,
   name: team.name,
-  ...addMetaInformation(team, isIncrementalLoad),
+  ...addMetaInformation(team),
 });
 
 export class LoadTeamDim {
@@ -29,14 +29,14 @@ export class LoadTeamDim {
   }
 
   private static async insertNewTeams(teams) {
-    await insertIntoTable(DimTable.TEAM, teams.map(mapTeamToTable(false)));
+    await insertIntoTable(DimTable.TEAM, teams.map(mapTeamToTable));
   }
 
   private static async updateTeams(teams: any[]) {
     await updateDim({
       dataFromStaging: teams,
       dimTableName: DimTable.TEAM,
-      mapDataItemToTableItemIncremental: mapTeamToTable(true),
+      mapDataItemToTableItemIncremental: mapTeamToTable,
     });
   }
 }

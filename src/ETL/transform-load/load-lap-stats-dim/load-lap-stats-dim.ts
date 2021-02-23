@@ -9,10 +9,10 @@ import { updateDim } from '../utils/update-dim';
 
 export const getDimLapStatsSourceKey = lapStats => getWcSourceKey(`${lapStats.race_id}-${lapStats.driver_id}`);
 
-const mapLapStatsToTable = (isIncrementalLoad: boolean) => lapStats => ({
+const mapLapStatsToTable = lapStats => ({
   laps_count: lapStats.laps_count,
   fastest_lap_time_in_milliseconds: lapStats.fastest_lap_time_in_milliseconds,
-  ...addMetaInformation(lapStats, isIncrementalLoad),
+  ...addMetaInformation(lapStats),
 });
 
 export class LoadLapsStatsDim {
@@ -44,14 +44,14 @@ export class LoadLapsStatsDim {
   }
 
   private static async insertNewLapsStats(lapsStats) {
-    await insertIntoTable(DimTable.LAP_STATS, lapsStats.map(mapLapStatsToTable(false)));
+    await insertIntoTable(DimTable.LAP_STATS, lapsStats.map(mapLapStatsToTable));
   }
 
   private static async updateLapsStats(lapsStats: any[]) {
     await updateDim({
       dataFromStaging: lapsStats,
       dimTableName: DimTable.LAP_STATS,
-      mapDataItemToTableItemIncremental: mapLapStatsToTable(true),
+      mapDataItemToTableItemIncremental: mapLapStatsToTable,
     });
   }
 }

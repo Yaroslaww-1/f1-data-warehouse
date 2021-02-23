@@ -11,10 +11,9 @@ const mapValidRage = item => ({
   valid_to: item.valid_to || DEFAULT_VALID_TO,
 });
 
-const mapCircuitToTable = (isIncrementalLoad: boolean) => circuit => ({
+const mapCircuitToTable = circuit => ({
   name: circuit.name,
   ref: circuit.ref,
-  is_incremental_load: isIncrementalLoad,
   source_key: circuit.source_key,
   ...mapValidRage(circuit),
 });
@@ -36,14 +35,14 @@ export class LoadCircuitDim {
   }
 
   private static async insertNewCircuits(circuits) {
-    await insertIntoTable(DimTable.CIRCUIT, circuits.map(mapCircuitToTable(false)));
+    await insertIntoTable(DimTable.CIRCUIT, circuits.map(mapCircuitToTable));
   }
 
   private static async updateCircuits(circuits: any[]) {
     await updateDim({
       dataFromStaging: circuits,
       dimTableName: DimTable.CIRCUIT,
-      mapDataItemToTableItemIncremental: mapCircuitToTable(true),
+      mapDataItemToTableItemIncremental: mapCircuitToTable,
     });
   }
 }

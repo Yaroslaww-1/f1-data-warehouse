@@ -8,7 +8,6 @@ export const isIncrementalLoad = async (tableName: string): Promise<boolean> => 
     END
   `;
   const [{ case: isTableNotEmpty }] = await databaseAdapter.query(query);
-  console.log(`isIncrementalLoad ${tableName} ${isTableNotEmpty}`);
   if (isTableNotEmpty) {
     return true;
   } else {

@@ -9,10 +9,10 @@ import { updateDim } from '../utils/update-dim';
 
 export const getDimPositionsStatsSourceKey = positionsStats => getWcSourceKey(`${positionsStats.race_id}-${positionsStats.driver_id}`);
 
-const mapPositionsStatsToTable = (isIncrementalLoad: boolean) => positionsStats => ({
+const mapPositionsStatsToTable = positionsStats => ({
   starting_position: positionsStats.starting_position,
   finishing_position: positionsStats.finishing_position,
-  ...addMetaInformation(positionsStats, isIncrementalLoad),
+  ...addMetaInformation(positionsStats),
 });
 
 export class LoadPositionStatsDim {
@@ -43,14 +43,14 @@ export class LoadPositionStatsDim {
   }
 
   private static async insertNewPositionsStats(positionsStats) {
-    await insertIntoTable(DimTable.POSITIONS_STATS, positionsStats.map(mapPositionsStatsToTable(false)));
+    await insertIntoTable(DimTable.POSITIONS_STATS, positionsStats.map(mapPositionsStatsToTable));
   }
 
   private static async updatePositionsStats(positionsStats: any[]) {
     await updateDim({
       dataFromStaging: positionsStats,
       dimTableName: DimTable.POSITIONS_STATS,
-      mapDataItemToTableItemIncremental: mapPositionsStatsToTable(true),
+      mapDataItemToTableItemIncremental: mapPositionsStatsToTable,
     });
   }
 }
