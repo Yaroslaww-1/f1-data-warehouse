@@ -69,6 +69,13 @@ const mapDriverRaceResultToTable = result => ({
   source_key: getWcSourceKey(result.resultId),
 });
 
+const mapQualifyingToTable = qualifying => ({
+  race_id: qualifying.raceId,
+  driver_id: qualifying.driverId,
+  position: qualifying.position,
+  source_key: getWcSourceKey(qualifying.qualifyId),
+});
+
 export class LoadToWcStaging {
   static async loadCircuitDimension() {
     const circuits = await extract('circuits');
@@ -78,6 +85,11 @@ export class LoadToWcStaging {
   static async loadDriverDimension() {
     const drivers = await extract('drivers');
     await insertIntoTable(WcStagingTable.DRIVER, drivers.map(mapDriverToTable));
+  }
+
+  static async loadQualifyingDimension() {
+    const qualifying = await extract('qualifying');
+    await insertIntoTable(WcStagingTable.QUALIFYING, qualifying.map(mapQualifyingToTable));
   }
 
   static async loadLapsStatsDimension() {

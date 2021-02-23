@@ -15,7 +15,7 @@ export const insertIntoTable = async (tableName: string, data: unknown[]) => {
     VALUES ${values.join(',')}
     RETURNING *
   `;
-  // console.log(query);
+  // console.log(query.substring(0, 200));
   const result = await databaseAdapter.query<void>(query);
   return result;
 };

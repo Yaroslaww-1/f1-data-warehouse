@@ -67,18 +67,17 @@ export class LoadPointsStatsDim {
         is_fastest_lap: isFastestLap,
         source_key: getDimPointsStatsSourceKey(result),
       };
-    });
+    }).map(mapPointsStatsToTable);
   }
 
   private static async insertNewPointsStats(pointsStats) {
-    await insertIntoTable(DimTable.POINTS_STATS, pointsStats.map(mapPointsStatsToTable));
+    await insertIntoTable(DimTable.POINTS_STATS, pointsStats);
   }
 
   private static async updatePointsStats(pointsStats: any[]) {
     await updateDim({
       dataFromStaging: pointsStats,
       dimTableName: DimTable.POINTS_STATS,
-      mapDataItemToTableItemIncremental: mapPointsStatsToTable,
     });
   }
 }

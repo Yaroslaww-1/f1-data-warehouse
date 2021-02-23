@@ -2,7 +2,7 @@
 CREATE TABLE team_dim (
 	id SERIAL PRIMARY KEY,
 	ref VARCHAR(25),
-	name VARCHAR(25),
+	name VARCHAR(50),
 	valid_from TIMESTAMPTZ,
 	valid_to TIMESTAMPTZ,
 	source_key VARCHAR(25)
@@ -164,3 +164,22 @@ CREATE TABLE driver_race_result (
 		FOREIGN KEY (pit_stops_stats_id)
 			REFERENCES pit_stops_stats_dim (id) ON DELETE SET NULL
 );
+
+CREATE OR REPLACE FUNCTION get_team_name(team_name TEXT)
+RETURNS
+    TEXT
+AS
+$BODY$
+DECLARE
+	team_parts TEXT[];
+    team_parts_size INT;
+BEGIN
+    team_parts = LOWER(string_to_array(team_name, ' ')::TEXT)::TEXT[];
+    team_parts_size = array_length(team_parts, 1) - 1;
+    IF team_parts_size = 0
+    	THEN team_parts_size = 1;
+    END IF;
+    RETURN array_to_string(team_parts[1:team_parts_size], ' ');
+END
+$BODY$
+LANGUAGE plpgsql;

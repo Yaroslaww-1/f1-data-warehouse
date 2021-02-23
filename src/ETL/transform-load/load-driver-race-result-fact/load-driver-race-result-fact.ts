@@ -1,5 +1,6 @@
 import { databaseAdapter } from '@src/database/database-adapter';
 import { insertIntoTable } from '@src/database/utils/insert-into-table';
+import { FiaStagingTable } from '@src/ETL/extract/sources/fia/table-names.enum';
 import { RdStagingTable } from '@src/ETL/extract/sources/rd/table-names.enum';
 import { WcStagingTable } from '@src/ETL/extract/sources/wc/table-names.enum';
 import { getDimLapStatsSourceKey } from '../load-lap-stats-dim/load-lap-stats-dim';
@@ -33,10 +34,23 @@ export class LoadDriverRaceResult {
   }
 
   private static async getDriverRaceResults() {
-    const lapsStats = await databaseAdapter.query<IJoinable>(`SELECT id, source_key FROM ${DimTable.LAP_STATS}`);
-    const pitStopsStats = await databaseAdapter.query<IJoinable>(`SELECT id, source_key FROM ${DimTable.PIT_STOPS_STATS}`);
-    const pointsStats = await databaseAdapter.query<IJoinable>(`SELECT id, source_key FROM ${DimTable.POINTS_STATS}`);
-    const positionsStats = await databaseAdapter.query<IJoinable>(`SELECT id, source_key FROM ${DimTable.POSITIONS_STATS}`);
+    const currentTimestamp = getCurrentTimestamp();
+    const lapsStats = await databaseAdapter.query<IJoinable>(`
+      SELECT id, source_key FROM ${DimTable.LAP_STATS}
+      WHERE valid_to > '${currentTimestamp}'
+    `);
+    const pitStopsStats = await databaseAdapter.query<IJoinable>(`
+      SELECT id, source_key FROM ${DimTable.PIT_STOPS_STATS}
+      WHERE valid_to > '${currentTimestamp}'
+    `);
+    const pointsStats = await databaseAdapter.query<IJoinable>(`
+      SELECT id, source_key FROM ${DimTable.POINTS_STATS}
+      WHERE valid_to > '${currentTimestamp}'
+    `);
+    const positionsStats = await databaseAdapter.query<IJoinable>(`
+      SELECT id, source_key FROM ${DimTable.POSITIONS_STATS}
+      WHERE valid_to > '${currentTimestamp}'
+    `);
 
     const mapLapsStatsSourceKeyToId = new Map<string, number>();
     for (const lapStats of lapsStats) {
@@ -58,8 +72,6 @@ export class LoadDriverRaceResult {
       mapPositionsSourceKeyToId.set(positionStats.source_key, positionStats.id);
     }
 
-    const currentTimestamp = getCurrentTimestamp();
-
     const query = `
       SELECT 
         wc_stg_drr.*,
@@ -77,13 +89,6 @@ export class LoadDriverRaceResult {
       ON
         driver.source_key = wc_stg_driver.source_key AND
         driver.valid_to > '${currentTimestamp}'
-
-      LEFT JOIN ${WcStagingTable.TEAM} wc_stg_team
-      ON wc_stg_team.id = wc_stg_drr.team_id
-      LEFT JOIN ${DimTable.TEAM} team
-      ON
-        team.source_key = wc_stg_team.source_key AND
-        team.valid_to > '${currentTimestamp}'
 
       LEFT JOIN ${WcStagingTable.STATUS} wc_stg_status
       ON wc_stg_status.id = wc_stg_drr.status_id
@@ -103,6 +108,13 @@ export class LoadDriverRaceResult {
         race.source_key = rd_stg_race.source_key AND
         race.valid_to > '${currentTimestamp}'
 
+      LEFT JOIN ${WcStagingTable.TEAM} wc_stg_team
+      ON wc_stg_team.id = wc_stg_drr.team_id
+      LEFT JOIN ${DimTable.TEAM} team
+      ON
+        get_team_name(team.name) = LOWER(wc_stg_team.name) AND
+        team.valid_to > '${currentTimestamp}'
+
       WHERE race.id IS NOT NULL
     `;
     
@@ -120,7 +132,7 @@ export class LoadDriverRaceResult {
       team_id,
       race_id,
       status_id,
-      //qualifying
+      qualifying_id: 0,
       laps_stats_id: mapLapsStatsSourceKeyToId.get(
         getDimLapStatsSourceKey({ race_id: wc_stg_race_id, driver_id: wc_stg_driver_id })
       ),

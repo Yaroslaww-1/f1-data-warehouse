@@ -15,6 +15,18 @@ export class FiaStaging {
   }
 
   static async load() {
-    await LoadFiaRdStaging.loadQualifyingDimension();
+    try {
+      await this.drop();
+    } catch (e) {
+      console.error(e);
+    }
+
+    try {
+      await this.create();
+    } catch (e) {
+      console.error(e);
+    }
+
+    await LoadFiaRdStaging.loadTeamDimension();
   }
 }

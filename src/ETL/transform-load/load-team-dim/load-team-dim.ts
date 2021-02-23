@@ -1,5 +1,6 @@
 import { databaseAdapter } from '@src/database/database-adapter';
 import { insertIntoTable } from '@src/database/utils/insert-into-table';
+import { FiaStagingTable } from '@src/ETL/extract/sources/fia/table-names.enum';
 import { WcStagingTable } from '@src/ETL/extract/sources/wc/table-names.enum';
 import { DimTable } from '../table-names.enum';
 import { addMetaInformation } from '../utils/add-meta-information-to-table';
@@ -24,7 +25,28 @@ export class LoadTeamDim {
   }
 
   private static async getTeams() {
-    const teams = await databaseAdapter.query(`SELECT * FROM ${WcStagingTable.TEAM}`);
+    const query = `
+      WITH fia_stg_team_new
+      AS (
+          SELECT
+            fia_stg_team.*,
+            get_team_name(fia_stg_team.name) as name_formatted
+          FROM ${FiaStagingTable.TEAM} fia_stg_team
+          )
+      SELECT
+        fia_stg_team_new.name as name,
+        wc_stg_team.ref as ref,
+        fia_stg_team_new.source_key as source_key
+      FROM fia_stg_team_new
+      LEFT JOIN ${WcStagingTable.TEAM} wc_stg_team
+      ON
+        fia_stg_team_new.name_formatted = LOWER(wc_stg_team.name)
+      GROUP BY
+        wc_stg_team.ref,
+        fia_stg_team_new.name,
+        fia_stg_team_new.source_key
+    `;
+    const teams = await databaseAdapter.query(query);
     return teams;
   }
 
@@ -36,7 +58,6 @@ export class LoadTeamDim {
     await updateDim({
       dataFromStaging: teams,
       dimTableName: DimTable.TEAM,
-      mapDataItemToTableItemIncremental: mapTeamToTable,
     });
   }
 }

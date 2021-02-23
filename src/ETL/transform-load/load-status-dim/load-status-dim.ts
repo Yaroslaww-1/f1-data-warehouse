@@ -24,18 +24,17 @@ export class LoadStatusDim {
 
   private static async getStatuses() {
     const statuses = await databaseAdapter.query(`SELECT * FROM ${WcStagingTable.STATUS}`);
-    return statuses;
+    return statuses.map(mapStatusToTable);
   }
 
   private static async insertNewStatuses(statuses) {
-    await insertIntoTable(DimTable.STATUS, statuses.map(mapStatusToTable));
+    await insertIntoTable(DimTable.STATUS, statuses);
   }
 
   private static async updateStatuses(statuses: any[]) {
     await updateDim({
       dataFromStaging: statuses,
       dimTableName: DimTable.STATUS,
-      mapDataItemToTableItemIncremental: mapStatusToTable,
     });
   }
 }

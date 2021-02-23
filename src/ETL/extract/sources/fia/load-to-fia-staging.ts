@@ -4,32 +4,23 @@ import { FiaStagingTable } from './table-names.enum';
 
 export const getFiaSourceKey = itemId => `FIA|${itemId}`;
 
-const escapeSymbols = (string = '') => {
-  return string.split('\'').join('');
-};
-
-const valueOrDefault = (value, def = null) => {
-  if (value === 'NC') {
-    return def;
-  } else {
-    return value;
-  }
-};
-
-const mapQualifyingToTable = qualifying => ({
-  year: qualifying.Year,
-  position: valueOrDefault(qualifying.Position),
-  venue: qualifying.Venue,
-  driver_name: escapeSymbols(qualifying.Name),
-  driver_code: escapeSymbols(qualifying.NameTag),
-  source_key: getFiaSourceKey(qualifying.Id),
+const mapTeamResultsToTable = teamResults => ({
+  name: teamResults.Team,
+  source_key: getFiaSourceKey(teamResults.Id),
 });
 
 export class LoadFiaRdStaging {
-  static async loadQualifyingDimension() {
-    const qualifyingBefore2006 = await extract('qualifying_times_1950-2005');
-    const qualifyingAfter2006 = await extract('qualifying_times_2006-2020');
-    const qualifying = [...qualifyingBefore2006, qualifyingAfter2006];
-    await insertIntoTable(FiaStagingTable.QUALIFYING, qualifying.map(mapQualifyingToTable));
+  static async loadTeamDimension() {
+    const teamsResults = await extract('constructors_championship_1958-2020') as any[];
+    const uniqueTeamsNames = new Set();
+    const uniqueTeams = [];
+    for (const teamResults of teamsResults) {
+      const teamName = teamResults.Team;
+      if (!uniqueTeamsNames.has(teamName)) {
+        uniqueTeamsNames.add(teamName);
+        uniqueTeams.push(teamResults);
+      }
+    }
+    await insertIntoTable(FiaStagingTable.TEAM, uniqueTeams.map(mapTeamResultsToTable));
   }
 }

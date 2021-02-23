@@ -25,18 +25,17 @@ export class LoadDriverDim {
 
   private static async getDrivers() {
     const drivers = await databaseAdapter.query(`SELECT * FROM ${WcStagingTable.DRIVER}`);
-    return drivers;
+    return drivers.map(mapDriverToTable);
   }
 
   private static async insertNewDrivers(drivers) {
-    await insertIntoTable(DimTable.DRIVER, drivers.map(mapDriverToTable));
+    await insertIntoTable(DimTable.DRIVER, drivers);
   }
 
   private static async updateDrivers(drivers: any[]) {
     await updateDim({
       dataFromStaging: drivers,
       dimTableName: DimTable.DRIVER,
-      mapDataItemToTableItemIncremental: mapDriverToTable,
     });
   }
 }

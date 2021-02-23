@@ -22,8 +22,8 @@ export class LoadDataWarehouse {
     // console.log('Race dim loaded');
     // await LoadTeamDim.load();
     // console.log('Team dim loaded');
-    await LoadStatusDim.load();
-    console.log('Status dim loaded');
+    // await LoadStatusDim.load();
+    // console.log('Status dim loaded');
     // await LoadDriverDim.load();
     // console.log('Driver dim loaded');
     // await LoadLapsStatsDim.load();
@@ -35,8 +35,8 @@ export class LoadDataWarehouse {
     // await LoadPositionStatsDim.load();
     // console.log('Positions Stats dim loaded');
 
-    // await LoadDriverRaceResult.load();
-    // console.log('Driver Race Results fact loaded');
+    await LoadDriverRaceResult.load();
+    console.log('Driver Race Results fact loaded');
 
     // await truncateTable(RcStagingTable.CIRCUIT);
   }

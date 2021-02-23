@@ -31,18 +31,17 @@ export class LoadCircuitDim {
 
   private static async getCircuits() {
     const circuits = await databaseAdapter.query(`SELECT * FROM ${RdStagingTable.CIRCUIT}`);
-    return circuits;
+    return circuits.map(mapCircuitToTable);
   }
 
   private static async insertNewCircuits(circuits) {
-    await insertIntoTable(DimTable.CIRCUIT, circuits.map(mapCircuitToTable));
+    await insertIntoTable(DimTable.CIRCUIT, circuits);
   }
 
   private static async updateCircuits(circuits: any[]) {
     await updateDim({
-      dataFromStaging: circuits,
+      dataFromStaging: circuits.map(mapCircuitToTable),
       dimTableName: DimTable.CIRCUIT,
-      mapDataItemToTableItemIncremental: mapCircuitToTable,
     });
   }
 }

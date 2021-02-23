@@ -49,9 +49,8 @@ export class LoadLapsStatsDim {
 
   private static async updateLapsStats(lapsStats: any[]) {
     await updateDim({
-      dataFromStaging: lapsStats,
+      dataFromStaging: lapsStats.map(mapLapStatsToTable),
       dimTableName: DimTable.LAP_STATS,
-      mapDataItemToTableItemIncremental: mapLapStatsToTable,
     });
   }
 }

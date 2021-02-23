@@ -40,18 +40,17 @@ export class LoadPitStopsStatsDim {
     return pitStopsStats.map(pitStopStats => ({
       ...pitStopStats,
       source_key: getDimPitStopsStatsSourceKey(pitStopStats),
-    }));
+    })).map(mapPitStopsStatsToTable);
   }
 
   private static async insertNewPitStopsStats(pitStopsStats) {
-    await insertIntoTable(DimTable.PIT_STOPS_STATS, pitStopsStats.map(mapPitStopsStatsToTable));
+    await insertIntoTable(DimTable.PIT_STOPS_STATS, pitStopsStats);
   }
 
   private static async updatePitStopsStats(pitStopsStats: any[]) {
     await updateDim({
       dataFromStaging: pitStopsStats,
       dimTableName: DimTable.PIT_STOPS_STATS,
-      mapDataItemToTableItemIncremental: mapPitStopsStatsToTable,
     });
   }
 }

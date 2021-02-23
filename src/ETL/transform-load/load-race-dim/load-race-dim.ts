@@ -4,6 +4,7 @@ import { getRdSourceKey } from '@src/ETL/extract/sources/rd/load-to-rd-staging';
 import { RdStagingTable } from '@src/ETL/extract/sources/rd/table-names.enum';
 import { DimTable } from '../table-names.enum';
 import { addMetaInformation } from '../utils/add-meta-information-to-table';
+import { getCurrentTimestamp } from '../utils/date';
 import { getDateId } from '../utils/get-date-id';
 import { isIncrementalLoad } from '../utils/is-incremental-load';
 import { updateDim } from '../utils/update-dim';
@@ -28,8 +29,14 @@ export class LoadRaceDim {
 
   private static async getRaces() {
     const races = await databaseAdapter.query(`SELECT * FROM ${RdStagingTable.RACE}`);
-    const circuitsFromDW = await databaseAdapter.query<any>(`SELECT * FROM ${DimTable.CIRCUIT}`);
-    const datesFromDW = await databaseAdapter.query<any>(`SELECT * FROM ${DimTable.DATE}`);
+    const currentTimestamp = getCurrentTimestamp();
+    const circuitsFromDW = await databaseAdapter.query<any>(`
+      SELECT * FROM ${DimTable.CIRCUIT}
+      WHERE valid_to > '${currentTimestamp}'
+    `);
+    const datesFromDW = await databaseAdapter.query<any>(`
+      SELECT * FROM ${DimTable.DATE}
+    `);
 
     const getCircuitIdFromDW = (circuitIdFromStaging: number) => {
       const circuit = circuitsFromDW.find(c => c.source_key === getRdSourceKey(circuitIdFromStaging));
@@ -40,18 +47,17 @@ export class LoadRaceDim {
       ...race,
       circuit_id: getCircuitIdFromDW(race.circuit_id),
       date_id: getDateId(datesFromDW, race.date), 
-    }));
+    })).map(mapRaceToTable);
   }
 
   private static async insertNewRaces(races) {
-    await insertIntoTable(DimTable.RACE, races.map(mapRaceToTable));
+    await insertIntoTable(DimTable.RACE, races);
   }
 
   private static async updateRaces(races: any[]) {
     await updateDim({
       dataFromStaging: races,
       dimTableName: DimTable.RACE,
-      mapDataItemToTableItemIncremental: mapRaceToTable,
     });
   }
 }

@@ -15,6 +15,18 @@ export class RdStaging {
   }
 
   static async load() {
+    try {
+      await this.drop();
+    } catch (e) {
+      console.error(e);
+    }
+
+    try {
+      await this.create();
+    } catch (e) {
+      console.error(e);
+    }
+
     await LoadToRdStaging.loadCircuitDimension();
     await LoadToRdStaging.loadRaceDimension();
   }

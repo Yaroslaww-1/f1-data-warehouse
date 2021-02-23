@@ -39,18 +39,17 @@ export class LoadPositionStatsDim {
     return positionsStats.map(stats => ({
       ...stats,
       source_key: getDimPositionsStatsSourceKey(stats),
-    }));
+    })).map(mapPositionsStatsToTable);
   }
 
   private static async insertNewPositionsStats(positionsStats) {
-    await insertIntoTable(DimTable.POSITIONS_STATS, positionsStats.map(mapPositionsStatsToTable));
+    await insertIntoTable(DimTable.POSITIONS_STATS, positionsStats);
   }
 
   private static async updatePositionsStats(positionsStats: any[]) {
     await updateDim({
       dataFromStaging: positionsStats,
       dimTableName: DimTable.POSITIONS_STATS,
-      mapDataItemToTableItemIncremental: mapPositionsStatsToTable,
     });
   }
 }

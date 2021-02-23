@@ -15,6 +15,18 @@ export class WcStaging {
   }
 
   static async load() {
+    try {
+      await this.drop();
+    } catch (e) {
+      console.error(e);
+    }
+
+    try {
+      await this.create();
+    } catch (e) {
+      console.error(e);
+    }
+
     await LoadToWcStaging.loadCircuitDimension();
     await LoadToWcStaging.loadDriverDimension();
     await LoadToWcStaging.loadRaceDimension();
@@ -22,6 +34,7 @@ export class WcStaging {
     await LoadToWcStaging.loadStatusDimension();
     await LoadToWcStaging.loadLapsStatsDimension();
     await LoadToWcStaging.loadPitStopsStatsDimension();
+    await LoadToWcStaging.loadQualifyingDimension();
     await LoadToWcStaging.loadDriverRaceResultFact();
   }
 }

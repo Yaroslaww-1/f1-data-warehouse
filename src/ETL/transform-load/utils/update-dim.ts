@@ -12,15 +12,12 @@ type DuplicatingRow = {
   source_key: string;
 }
 
-type MapDataItemIncremental = (data: unknown) => unknown;
-
 const updateOldRows = async (
-  { duplicatingRows, duplicatingRowsUpdates, tableName, mapDataItemToTableItemIncremental }:
+  { duplicatingRows, duplicatingRowsUpdates, tableName }:
   {
     duplicatingRows: DuplicatingRow[],
     duplicatingRowsUpdates: WithSourceKey[],
-    tableName: string,
-    mapDataItemToTableItemIncremental: MapDataItemIncremental
+    tableName: string
   }
 ) => {
   const oldRowsReInserts = [];
@@ -34,8 +31,7 @@ const updateOldRows = async (
       .map(d => ({
         ...d,
         valid_from: new Date(d.valid_from).toISOString(),
-        valid_to: subtractedTimestamp }))
-      .map(mapDataItemToTableItemIncremental);
+        valid_to: subtractedTimestamp }));
     return newRowToInsert;
   };
 
@@ -57,8 +53,8 @@ const updateOldRows = async (
 };
 
 export const updateDim = async (
-  { dataFromStaging, dimTableName, mapDataItemToTableItemIncremental } :
-  { dataFromStaging: WithSourceKey[], dimTableName: string, mapDataItemToTableItemIncremental: MapDataItemIncremental }
+  { dataFromStaging, dimTableName } :
+  { dataFromStaging: WithSourceKey[], dimTableName: string }
 ) => {
   const newKeys = dataFromStaging.map(i => i.source_key);
   const currentTimestamp = getCurrentTimestamp();
@@ -78,13 +74,11 @@ export const updateDim = async (
     duplicatingRows,
     duplicatingRowsUpdates,
     tableName: dimTableName,
-    mapDataItemToTableItemIncremental,
   });
 
   if (newUniqueKeys.length > 0) {
     const newData = dataFromStaging
-      .filter(i => newUniqueKeys.includes(i.source_key))
-      .map(mapDataItemToTableItemIncremental);
+      .filter(i => newUniqueKeys.includes(i.source_key));
     await insertIntoTable(dimTableName, newData);
   }
 };

@@ -35,6 +35,14 @@ CREATE TABLE stg_wc.race_dim (
 			REFERENCES stg_wc.circuit_dim (id) ON DELETE SET NULL
 );
 
+CREATE TABLE stg_wc.qualifying_dim (
+	id SERIAL PRIMARY KEY,
+	race_id INT,
+	driver_id INT,
+	position INT,
+	source_key VARCHAR(25)
+);
+
 -- dim
 CREATE TABLE stg_wc.status_dim (
 	id SERIAL PRIMARY KEY,
