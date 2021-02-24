@@ -1,12 +1,12 @@
 import { databaseAdapter } from '@src/database/database-adapter';
 import { insertIntoTable } from '@src/database/utils/insert-into-table';
-import { FiaStagingTable } from '@src/ETL/extract/sources/fia/table-names.enum';
 import { RdStagingTable } from '@src/ETL/extract/sources/rd/table-names.enum';
 import { WcStagingTable } from '@src/ETL/extract/sources/wc/table-names.enum';
 import { getDimLapStatsSourceKey } from '../load-lap-stats-dim/load-lap-stats-dim';
 import { getDimPitStopsStatsSourceKey } from '../load-pit-stops-stats-dim/load-pit-stops-stats-dim';
 import { getDimPointsStatsSourceKey } from '../load-points-stats-dim/load-points-stats-dim';
 import { getDimPositionsStatsSourceKey } from '../load-position-stats-dim/load-position-stats-dim';
+import { getDimQualifySourceKey } from '../qualifying-dim/qualifying-dim';
 import { DimTable, FaceTable } from '../table-names.enum';
 import { getCurrentTimestamp } from '../utils/date';
 
@@ -15,7 +15,7 @@ const mapDriverRaceResultToTable = driverRaceResults => ({
   team_id: driverRaceResults.team_id,
   race_id: driverRaceResults.race_id,
   status_id: driverRaceResults.status_id,
-  qualifying_id: 1,
+  qualifying_id: driverRaceResults.qualifying_id,
   laps_stats_id: driverRaceResults.laps_stats_id,
   position_stats_id: driverRaceResults.position_stats_id,
   points_stats_id: driverRaceResults.points_stats_id,
@@ -51,6 +51,10 @@ export class LoadDriverRaceResult {
       SELECT id, source_key FROM ${DimTable.POSITIONS_STATS}
       WHERE valid_to > '${currentTimestamp}'
     `);
+    const qualifying = await databaseAdapter.query<IJoinable>(`
+      SELECT id, source_key FROM ${DimTable.QUALIFYING}
+      WHERE valid_to > '${currentTimestamp}'
+    `);
 
     const mapLapsStatsSourceKeyToId = new Map<string, number>();
     for (const lapStats of lapsStats) {
@@ -70,6 +74,11 @@ export class LoadDriverRaceResult {
     const mapPositionsSourceKeyToId = new Map<string, number>();
     for (const positionStats of positionsStats) {
       mapPositionsSourceKeyToId.set(positionStats.source_key, positionStats.id);
+    }
+
+    const mapQualifyingSourceKeyToId = new Map<string, number>();
+    for (const qualify of qualifying) {
+      mapQualifyingSourceKeyToId.set(qualify.source_key, qualify.id);
     }
 
     const query = `
@@ -120,7 +129,7 @@ export class LoadDriverRaceResult {
     
     const driverRaceResults = await databaseAdapter.query<any>(query);
 
-    const a = driverRaceResults.map(({
+    return driverRaceResults.map(({
       driver_id,
       team_id,
       race_id,
@@ -132,7 +141,6 @@ export class LoadDriverRaceResult {
       team_id,
       race_id,
       status_id,
-      qualifying_id: 0,
       laps_stats_id: mapLapsStatsSourceKeyToId.get(
         getDimLapStatsSourceKey({ race_id: wc_stg_race_id, driver_id: wc_stg_driver_id })
       ),
@@ -145,13 +153,13 @@ export class LoadDriverRaceResult {
       position_stats_id: mapPositionsSourceKeyToId.get(
         getDimPositionsStatsSourceKey({ race_id: wc_stg_race_id, driver_id: wc_stg_driver_id })
       ),
+      qualifying_id: mapQualifyingSourceKeyToId.get(
+        getDimQualifySourceKey({ race_id: wc_stg_race_id, driver_id: wc_stg_driver_id })
+      ),
     }));
-
-    return a;
   }
 
   private static async insertNewDriverRaceResults(driverRaceResults) {
-    console.log(driverRaceResults.map(mapDriverRaceResultToTable)[0]);
     await insertIntoTable(FaceTable.DRIVER_RACE_RESULT, driverRaceResults.map(mapDriverRaceResultToTable));
   }
 }

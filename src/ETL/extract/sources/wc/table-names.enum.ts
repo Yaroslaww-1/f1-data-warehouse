@@ -6,5 +6,6 @@ export enum WcStagingTable {
   PIT_STOPS_STATS = 'stg_wc.pit_stops_stats_dim',
   DRIVER_RACE_RESULT = 'stg_wc.driver_race_result',
   RACE = 'stg_wc.race_dim',
-  QUALIFYING = 'stg_wc.qualifying_dim'
+  QUALIFYING = 'stg_wc.qualifying_dim',
+  CIRCUIT = 'stg_wc.circuit_dim',
 }

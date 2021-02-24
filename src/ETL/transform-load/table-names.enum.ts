@@ -9,6 +9,7 @@ export enum DimTable {
   PIT_STOPS_STATS = 'pit_stops_stats_dim',
   POINTS_STATS = 'points_stats_dim',
   POSITIONS_STATS = 'position_stats_dim',
+  QUALIFYING = 'qualifying_dim'
 }
 
 export enum FaceTable {

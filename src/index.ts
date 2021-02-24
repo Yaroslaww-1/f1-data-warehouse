@@ -17,6 +17,7 @@ enum Option {
   LOAD_RD_STAGING = '4',
   LOAD_FIA_STAGING = '5',
   LOAD_DATA_WAREHOUSE ='6',
+  TEST_INCREMENTAL_LOAD = '7',
   EXIT = '99',
 }
 
@@ -28,6 +29,7 @@ const processUserCommands = async () => {
   [rd]Load rd staging = ${Option.LOAD_RD_STAGING}
   [fia]Load fia staging = ${Option.LOAD_FIA_STAGING}
   [data-warehouse]Load Data Warehouse = ${Option.LOAD_DATA_WAREHOUSE}
+  [data-warehouse]Test Incremental load = ${Option.TEST_INCREMENTAL_LOAD}
   Exit = ${Option.EXIT}
   `);
   while (true) {
@@ -64,6 +66,10 @@ const processUserCommands = async () => {
       // data warehouse
       case Option.LOAD_DATA_WAREHOUSE: {
         await LoadDataWarehouse.load();
+        break;
+      }
+      case Option.TEST_INCREMENTAL_LOAD: {
+        await LoadDataWarehouse.testIncrementalLoad();
         break;
       }
 

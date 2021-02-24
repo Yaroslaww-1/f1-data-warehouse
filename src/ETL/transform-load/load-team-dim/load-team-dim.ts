@@ -34,17 +34,16 @@ export class LoadTeamDim {
           FROM ${FiaStagingTable.TEAM} fia_stg_team
           )
       SELECT
-        fia_stg_team_new.name as name,
-        wc_stg_team.ref as ref,
-        fia_stg_team_new.source_key as source_key
+        DISTINCT ON (wc_stg_team.ref) ref,
+        fia_stg_team_new.name as name
       FROM fia_stg_team_new
       LEFT JOIN ${WcStagingTable.TEAM} wc_stg_team
       ON
         fia_stg_team_new.name_formatted = LOWER(wc_stg_team.name)
       GROUP BY
-        wc_stg_team.ref,
+        fia_stg_team_new.name_formatted,
         fia_stg_team_new.name,
-        fia_stg_team_new.source_key
+        wc_stg_team.ref
     `;
     const teams = await databaseAdapter.query(query);
     return teams;

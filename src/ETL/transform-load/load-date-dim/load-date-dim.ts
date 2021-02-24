@@ -31,7 +31,6 @@ export class LoadDateDim {
   }
 
   private static async insertNewDates(dates) {
-    console.log(dates.length);
     await insertIntoTable(DimTable.DATE, dates.map(mapDateToTable));
   }
 }
