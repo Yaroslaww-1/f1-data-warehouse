@@ -1,34 +1,17 @@
 import { databaseAdapter } from '@src/database/database-adapter';
-import { insertIntoTable } from '@src/database/utils/insert-into-table';
-import { getWcSourceKey } from '@src/ETL/extract/sources/wc/load-to-wc-staging';
 import { WcStagingTable } from '@src/ETL/extract/sources/wc/table-names.enum';
-import { LoadLapsStatsDim } from '../load-lap-stats-dim/load-lap-stats-dim';
-import { DimTable } from '../table-names.enum';
-import { addMetaInformation } from '../utils/add-meta-information-to-table';
-import { isIncrementalLoad } from '../utils/is-incremental-load';
-import { updateDim } from '../utils/update-dim';
-
-export const getDimPointsStatsSourceKey = pointsStats => getWcSourceKey(`${pointsStats.race_id}-${pointsStats.driver_id}`);
+import { LoadLapsStats } from './load-lap-stats';
 
 const mapPointsStatsToTable = pointsStats => ({
+  race_id: pointsStats.race_id,
+  driver_id: pointsStats.driver_id,
   points: pointsStats.points,
   is_fastest_lap: pointsStats.is_fastest_lap,
-  ...addMetaInformation(pointsStats),
 });
 
-export class LoadPointsStatsDim {
-  static async load() {
-    const isIncremental = await isIncrementalLoad(DimTable.POINTS_STATS);
-    const pointsStats = await this.getPointsStats();
-    if (!isIncremental) {
-      await this.insertNewPointsStats(pointsStats);
-    } else {
-      await this.updatePointsStats(pointsStats);
-    }
-  }
-
-  private static async getPointsStats() {
-    const lapsStatsForAllRaces = await LoadLapsStatsDim.getLapsStats();
+export class LoadPointsStats {
+  static async getPointsStats() {
+    const lapsStatsForAllRaces = await LoadLapsStats.getLapsStats();
     lapsStatsForAllRaces.sort((s1, s2) => s1.race_id - s2.race_id);
     
     const fastestDriverByRaceMap = new Map<number, { driverId: number, timeInMilliseconds: number }>();
@@ -63,21 +46,11 @@ export class LoadPointsStatsDim {
         fastestDriverByRaceMap.has(result.race_id) &&
         fastestDriverByRaceMap.get(result.race_id).driverId === result.driver_id;
       return {
+        race_id: result.race_id,
+        driver_id: result.driver_id,
         points: Math.round(result.points),
         is_fastest_lap: isFastestLap,
-        source_key: getDimPointsStatsSourceKey(result),
       };
     }).map(mapPointsStatsToTable);
-  }
-
-  private static async insertNewPointsStats(pointsStats) {
-    await insertIntoTable(DimTable.POINTS_STATS, pointsStats);
-  }
-
-  private static async updatePointsStats(pointsStats: any[]) {
-    await updateDim({
-      dataFromStaging: pointsStats,
-      dimTableName: DimTable.POINTS_STATS,
-    });
   }
 }

@@ -66,7 +66,7 @@ export const updateDim = async (
       valid_to > '${currentTimestamp}'
   `;
   const duplicatingRows = await databaseAdapter.query<DuplicatingRow>(query);
-  const duplicatingKeys = duplicatingRows.map(r => r.source_key);
+  const duplicatingKeys = duplicatingRows?.map(r => r.source_key);
   const newUniqueKeys = newKeys.filter(key => !duplicatingKeys.includes(key));
   const duplicatingRowsUpdates = dataFromStaging.filter(d => duplicatingKeys.includes(d.source_key));
 

@@ -1,3 +1,5 @@
+CREATE SCHEMA public;
+
 -- dim
 CREATE TABLE team_dim (
 	id SERIAL PRIMARY KEY,
@@ -84,46 +86,6 @@ CREATE TABLE qualifying_dim (
 	source_key VARCHAR(25)
 );
 
--- dim
-CREATE TABLE laps_stats_dim (
-	id SERIAL PRIMARY KEY,
-	laps_count INT,
-	fastest_lap_time_in_milliseconds INT,
-	valid_from TIMESTAMPTZ,
-	valid_to TIMESTAMPTZ,
-	source_key VARCHAR(25)
-);
-
--- dim
-CREATE TABLE position_stats_dim (
-	id SERIAL PRIMARY KEY,
-	starting_position INT,
-	finishing_position INT,
-	valid_from TIMESTAMPTZ,
-	valid_to TIMESTAMPTZ,
-	source_key VARCHAR(25)
-);
-
--- dim
-CREATE TABLE points_stats_dim (
-	id SERIAL PRIMARY KEY,
-	points INT,
-	is_fastest_lap BOOLEAN,
-	valid_from TIMESTAMPTZ,
-	valid_to TIMESTAMPTZ,
-	source_key VARCHAR(25)
-);
-
--- dim
-CREATE TABLE pit_stops_stats_dim (
-	id SERIAL PRIMARY KEY,
-	pit_stops_count INT,
-	summary_pit_stops_time_in_milliseconds INT,
-	valid_from TIMESTAMPTZ,
-	valid_to TIMESTAMPTZ,
-	source_key VARCHAR(25)
-);
-
 -- fact
 CREATE TABLE driver_race_result (
 	id SERIAL PRIMARY KEY,
@@ -132,10 +94,14 @@ CREATE TABLE driver_race_result (
 	race_id INT,
 	status_id INT,
 	qualifying_id INT,
-	laps_stats_id INT,
-	position_stats_id INT,
-	points_stats_id INT,
-	pit_stops_stats_id INT,
+	laps_count INT,
+	fastest_lap_time_in_milliseconds INT,
+	starting_position INT,
+	finishing_position INT,
+	points INT,
+	is_fastest_lap BOOLEAN,
+	pit_stops_count INT,
+	summary_pit_stops_time_in_milliseconds INT,
 	CONSTRAINT fk_driver_id
 		FOREIGN KEY (driver_id)
 			REFERENCES driver_dim (id) ON DELETE SET NULL,
@@ -150,19 +116,7 @@ CREATE TABLE driver_race_result (
 			REFERENCES status_dim (id) ON DELETE SET NULL,
 	CONSTRAINT fk_qualifying_id
 		FOREIGN KEY (qualifying_id)
-			REFERENCES qualifying_dim (id) ON DELETE SET NULL,
-	CONSTRAINT fk_laps_stats_id
-		FOREIGN KEY (laps_stats_id)
-			REFERENCES laps_stats_dim (id) ON DELETE SET NULL,
-	CONSTRAINT fk_position_stats_id
-		FOREIGN KEY (position_stats_id)
-			REFERENCES position_stats_dim (id) ON DELETE SET NULL,
-	CONSTRAINT fk_points_stats_id
-		FOREIGN KEY (points_stats_id)
-			REFERENCES points_stats_dim (id) ON DELETE SET NULL,
-	CONSTRAINT fk_pit_stops_stats_id
-		FOREIGN KEY (pit_stops_stats_id)
-			REFERENCES pit_stops_stats_dim (id) ON DELETE SET NULL
+			REFERENCES qualifying_dim (id) ON DELETE SET NULL
 );
 
 CREATE OR REPLACE FUNCTION get_team_name(team_name TEXT)

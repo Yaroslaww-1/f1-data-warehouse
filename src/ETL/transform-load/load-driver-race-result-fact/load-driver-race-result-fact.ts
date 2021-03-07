@@ -2,10 +2,10 @@ import { databaseAdapter } from '@src/database/database-adapter';
 import { insertIntoTable } from '@src/database/utils/insert-into-table';
 import { RdStagingTable } from '@src/ETL/extract/sources/rd/table-names.enum';
 import { WcStagingTable } from '@src/ETL/extract/sources/wc/table-names.enum';
-import { getDimLapStatsSourceKey } from '../load-lap-stats-dim/load-lap-stats-dim';
-import { getDimPitStopsStatsSourceKey } from '../load-pit-stops-stats-dim/load-pit-stops-stats-dim';
-import { getDimPointsStatsSourceKey } from '../load-points-stats-dim/load-points-stats-dim';
-import { getDimPositionsStatsSourceKey } from '../load-position-stats-dim/load-position-stats-dim';
+import { LoadLapsStats } from './load-lap-stats';
+import { LoadPitStopsStats } from './load-pit-stops-stats';
+import { LoadPointsStats } from './load-points-stats';
+import { LoadPositionStats } from './load-position-stats';
 import { getDimQualifySourceKey } from '../qualifying-dim/qualifying-dim';
 import { DimTable, FaceTable } from '../table-names.enum';
 import { getCurrentTimestamp } from '../utils/date';
@@ -16,10 +16,14 @@ const mapDriverRaceResultToTable = driverRaceResults => ({
   race_id: driverRaceResults.race_id,
   status_id: driverRaceResults.status_id,
   qualifying_id: driverRaceResults.qualifying_id,
-  laps_stats_id: driverRaceResults.laps_stats_id,
-  position_stats_id: driverRaceResults.position_stats_id,
-  points_stats_id: driverRaceResults.points_stats_id,
-  pit_stops_stats_id: driverRaceResults.pit_stops_stats_id,
+  laps_count: driverRaceResults.laps_count,
+  fastest_lap_time_in_milliseconds: driverRaceResults.fastest_lap_time_in_milliseconds,
+  starting_position: driverRaceResults.starting_position,
+  finishing_position: driverRaceResults.finishing_position,
+  points: driverRaceResults.points,
+  is_fastest_lap: driverRaceResults.is_fastest_lap,
+  pit_stops_count: driverRaceResults.pit_stops_count,
+  summary_pit_stops_time_in_milliseconds: driverRaceResults.summary_pit_stops_time_in_milliseconds,
 });
 
 interface IJoinable {
@@ -35,45 +39,65 @@ export class LoadDriverRaceResult {
 
   private static async getDriverRaceResults() {
     const currentTimestamp = getCurrentTimestamp();
-    const lapsStats = await databaseAdapter.query<IJoinable>(`
-      SELECT id, source_key FROM ${DimTable.LAP_STATS}
-      WHERE valid_to > '${currentTimestamp}'
-    `);
-    const pitStopsStats = await databaseAdapter.query<IJoinable>(`
-      SELECT id, source_key FROM ${DimTable.PIT_STOPS_STATS}
-      WHERE valid_to > '${currentTimestamp}'
-    `);
-    const pointsStats = await databaseAdapter.query<IJoinable>(`
-      SELECT id, source_key FROM ${DimTable.POINTS_STATS}
-      WHERE valid_to > '${currentTimestamp}'
-    `);
-    const positionsStats = await databaseAdapter.query<IJoinable>(`
-      SELECT id, source_key FROM ${DimTable.POSITIONS_STATS}
-      WHERE valid_to > '${currentTimestamp}'
-    `);
+    const lapsStats = await LoadLapsStats.getLapsStats();
+    const pitStopsStats = await LoadPitStopsStats.getPitStopsStats();
+    const pointsStats = await LoadPointsStats.getPointsStats();
+    const positionsStats = await LoadPositionStats.getPositionsStats();
     const qualifying = await databaseAdapter.query<IJoinable>(`
       SELECT id, source_key FROM ${DimTable.QUALIFYING}
       WHERE valid_to > '${currentTimestamp}'
     `);
 
-    const mapLapsStatsSourceKeyToId = new Map<string, number>();
+    const mapLapsStats = new Map<
+    string, 
+    {
+      race_id: any;
+      driver_id: any;
+      laps_count: any;
+      fastest_lap_time_in_milliseconds: any;
+    }>();
     for (const lapStats of lapsStats) {
-      mapLapsStatsSourceKeyToId.set(lapStats.source_key, lapStats.id);
+      const key = JSON.stringify({ raceId: lapStats.race_id, driverId: lapStats.driver_id });
+      mapLapsStats.set(key, lapStats);
     }
 
-    const mapPitStopsSourceKeyToId = new Map<string, number>();
+    const mapPitStops = new Map<
+    string,
+    {
+      race_id: any;
+      driver_id: any;
+      pit_stops_count: any;
+      summary_pit_stops_time_in_milliseconds: any;
+    }>();
     for (const pitStopStats of pitStopsStats) {
-      mapPitStopsSourceKeyToId.set(pitStopStats.source_key, pitStopStats.id);
+      const key = JSON.stringify({ raceId: pitStopStats.race_id, driverId: pitStopStats.driver_id });
+      mapPitStops.set(key, pitStopStats);
     }
 
-    const mapPointsStatsSourceKeyToId = new Map<string, number>();
+    const mapPointsStats = new Map<
+    string,
+    {
+      race_id: any;
+      driver_id: any;
+      points: any;
+      is_fastest_lap: any;
+    }>();
     for (const pointStats of pointsStats) {
-      mapPointsStatsSourceKeyToId.set(pointStats.source_key, pointStats.id);
+      const key = JSON.stringify({ raceId: pointStats.race_id, driverId: pointStats.driver_id });
+      mapPointsStats.set(key, pointStats);
     }
 
-    const mapPositionsSourceKeyToId = new Map<string, number>();
+    const mapPositionsStats = new Map<
+    string,
+    {
+      driver_id: any;
+      race_id: any;
+      starting_position: any;
+      finishing_position: any;
+    }>();
     for (const positionStats of positionsStats) {
-      mapPositionsSourceKeyToId.set(positionStats.source_key, positionStats.id);
+      const key = JSON.stringify({ raceId: positionStats.race_id, driverId: positionStats.driver_id });
+      mapPositionsStats.set(key, positionStats);
     }
 
     const mapQualifyingSourceKeyToId = new Map<string, number>();
@@ -136,27 +160,30 @@ export class LoadDriverRaceResult {
       status_id,
       wc_stg_driver_id,
       wc_stg_race_id,
-    }) => ({
-      driver_id,
-      team_id,
-      race_id,
-      status_id,
-      laps_stats_id: mapLapsStatsSourceKeyToId.get(
-        getDimLapStatsSourceKey({ race_id: wc_stg_race_id, driver_id: wc_stg_driver_id })
-      ),
-      pit_stops_stats_id: mapPitStopsSourceKeyToId.get(
-        getDimPitStopsStatsSourceKey({ race_id: wc_stg_race_id, driver_id: wc_stg_driver_id })
-      ),
-      points_stats_id: mapPointsStatsSourceKeyToId.get(
-        getDimPointsStatsSourceKey({ race_id: wc_stg_race_id, driver_id: wc_stg_driver_id })
-      ),
-      position_stats_id: mapPositionsSourceKeyToId.get(
-        getDimPositionsStatsSourceKey({ race_id: wc_stg_race_id, driver_id: wc_stg_driver_id })
-      ),
-      qualifying_id: mapQualifyingSourceKeyToId.get(
-        getDimQualifySourceKey({ race_id: wc_stg_race_id, driver_id: wc_stg_driver_id })
-      ),
-    }));
+    }) => {
+      const keyToJoinBy = JSON.stringify({ raceId: wc_stg_race_id, driverId: wc_stg_driver_id });
+      return {
+        driver_id,
+        team_id,
+        race_id,
+        status_id,
+        qualifying_id: mapQualifyingSourceKeyToId.get(
+          getDimQualifySourceKey({ race_id: wc_stg_race_id, driver_id: wc_stg_driver_id })
+        ),
+        laps_count: mapLapsStats.get(keyToJoinBy)?.laps_count,
+        fastest_lap_time_in_milliseconds:
+          mapLapsStats.get(keyToJoinBy)?.fastest_lap_time_in_milliseconds,
+        starting_position:
+          mapPositionsStats.get(keyToJoinBy)?.starting_position,
+        finishing_position:
+          mapPositionsStats.get(keyToJoinBy)?.finishing_position,
+        points: mapPointsStats.get(keyToJoinBy)?.points,
+        is_fastest_lap: mapPointsStats.get(keyToJoinBy)?.is_fastest_lap,
+        pit_stops_count: mapPitStops.get(keyToJoinBy)?.pit_stops_count,
+        summary_pit_stops_time_in_milliseconds:
+          mapPitStops.get(keyToJoinBy)?.summary_pit_stops_time_in_milliseconds,
+      };
+    });
   }
 
   private static async insertNewDriverRaceResults(driverRaceResults) {

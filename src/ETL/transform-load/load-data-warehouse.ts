@@ -7,10 +7,6 @@ import { LoadCircuitDim } from './load-circuit-dim/load-circuit-dim';
 import { LoadDateDim } from './load-date-dim/load-date-dim';
 import { LoadDriverDim } from './load-driver-dim/load-driver-dim';
 import { LoadDriverRaceResult } from './load-driver-race-result-fact/load-driver-race-result-fact';
-import { LoadLapsStatsDim } from './load-lap-stats-dim/load-lap-stats-dim';
-import { LoadPitStopsStatsDim } from './load-pit-stops-stats-dim/load-pit-stops-stats-dim';
-import { LoadPointsStatsDim } from './load-points-stats-dim/load-points-stats-dim';
-import { LoadPositionStatsDim } from './load-position-stats-dim/load-position-stats-dim';
 import { LoadRaceDim } from './load-race-dim/load-race-dim';
 import { LoadStatusDim } from './load-status-dim/load-status-dim';
 import { LoadTeamDim } from './load-team-dim/load-team-dim';
@@ -30,14 +26,6 @@ export class LoadDataWarehouse {
     console.log('Status dim loaded');
     await LoadDriverDim.load();
     console.log('Driver dim loaded');
-    await LoadLapsStatsDim.load();
-    console.log('Laps Stats dim loaded');
-    await LoadPitStopsStatsDim.load();
-    console.log('Pit Stops Stats dim loaded');
-    await LoadPointsStatsDim.load();
-    console.log('Points Stats dim loaded');
-    await LoadPositionStatsDim.load();
-    console.log('Positions Stats dim loaded');
     await LoadQualifyingDim.load();
     console.log('Qualifying dim loaded');
 
