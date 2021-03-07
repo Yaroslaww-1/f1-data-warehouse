@@ -14,6 +14,7 @@ const mapValidRage = item => ({
 const mapCircuitToTable = circuit => ({
   name: circuit.name,
   ref: circuit.ref,
+  country_id: circuit.country_id,
   source_key: circuit.source_key,
   ...mapValidRage(circuit),
 });
@@ -30,8 +31,12 @@ export class LoadCircuitDim {
   }
 
   private static async getCircuits() {
-    const circuits = await databaseAdapter.query(`SELECT * FROM ${RdStagingTable.CIRCUIT}`);
-    return circuits.map(mapCircuitToTable);
+    const countries = await databaseAdapter.query<any>(`SELECT * FROM ${DimTable.COUNTRY}`);
+    const circuits = await databaseAdapter.query<any>(`SELECT * FROM ${RdStagingTable.CIRCUIT}`);
+    return circuits.map(circuit => ({
+      ...circuit,
+      country_id: countries.find(country => country.name === circuit.country)?.id,
+    })).map(mapCircuitToTable);
   }
 
   private static async insertNewCircuits(circuits) {

@@ -5,7 +5,8 @@ export enum DimTable {
   TEAM = 'team_dim',
   STATUS = 'status_dim',
   DRIVER = 'driver_dim',
-  QUALIFYING = 'qualifying_dim'
+  QUALIFYING = 'qualifying_dim',
+  COUNTRY = 'country_dim'
 }
 
 export enum FaceTable {

@@ -20,6 +20,7 @@ CREATE TABLE stg_wc.circuit_dim (
 	id SERIAL PRIMARY KEY,
 	ref VARCHAR(25),
 	name VARCHAR(100),
+	country VARCHAR(50),
 	source_key VARCHAR(25)
 );
 

@@ -42,13 +42,25 @@ CREATE TABLE date_dim (
 	day INT
 );
 
+CREATE TABLE country_dim (
+	id SERIAL PRIMARY KEY,
+	name VARCHAR(50),
+	valid_from TIMESTAMPTZ,
+	valid_to TIMESTAMPTZ,
+	source_key VARCHAR(25)
+);
+
 CREATE TABLE circuit_dim (
 	id SERIAL PRIMARY KEY,
 	ref VARCHAR(25),
 	name VARCHAR(100),
 	valid_from TIMESTAMPTZ,
 	valid_to TIMESTAMPTZ,
-	source_key VARCHAR(25)
+	country_id INT,
+	source_key VARCHAR(25),
+	CONSTRAINT fk_country_id
+		FOREIGN KEY (country_id)
+			REFERENCES country_dim (id) ON DELETE SET NULL
 );
 
 -- dim

@@ -3,6 +3,7 @@ import { FiaStagingTable } from '../extract/sources/fia/table-names.enum';
 import { RdStagingTable } from '../extract/sources/rd/table-names.enum';
 import { WcStaging } from '../extract/sources/wc/staging/staging';
 import { WcStagingTable } from '../extract/sources/wc/table-names.enum';
+import { LoadCountryDim } from './country-dim/country-dim';
 import { LoadCircuitDim } from './load-circuit-dim/load-circuit-dim';
 import { LoadDateDim } from './load-date-dim/load-date-dim';
 import { LoadDriverDim } from './load-driver-dim/load-driver-dim';
@@ -14,6 +15,8 @@ import { LoadQualifyingDim } from './qualifying-dim/qualifying-dim';
 
 export class LoadDataWarehouse {
   static async load() {
+    await LoadCountryDim.load();
+    console.log('Country dim loaded');
     await LoadCircuitDim.load();
     console.log('Circuit dim loaded');
     await LoadDateDim.load();

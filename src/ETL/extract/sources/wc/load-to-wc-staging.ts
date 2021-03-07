@@ -27,6 +27,7 @@ const mapStatusToTable = status => ({
 const mapCircuitToTable = circuit => ({
   ref: valueOrDefault(circuit.circuitRef),
   name: circuit.name,
+  country: circuit.country,
   source_key: getWcSourceKey(circuit.circuitId),
 });
 
